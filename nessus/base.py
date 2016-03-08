@@ -1,5 +1,4 @@
 import re
-from uuid import uuid4
 
 import requests
 from typing import Optional, Mapping, IO
@@ -70,27 +69,19 @@ class LibNessusBase:
 
         return ans
 
-    def _post(self, path: str, data: Optional[Mapping[str, str]] = None,
-              file_bytes: Optional[IO[bytes]] = None) -> requests.Response:
+    def _post(self, path: str, json: Optional[Mapping[str, str]] = None,
+              files: Optional[IO[bytes]] = None) -> requests.Response:
         """
         POST request to nessus
         :param path: path in nessus ('https://localhost:8834/file/upload' -> 'file/upload')
-        :param data: POST data to pass to requests
+        :param json: POST data to pass to requests
         :param file_bytes: opened file to passe to requests
         :return: response from requests
         """
         session = self.__get_session()
         url = '{}/{}'.format(self.url, path)
-        if file_bytes is None:
-            files = None
-        else:
-            # by generating a random name, we avoid limit of number of upload
-            filename = str(uuid4())
-            files = {
-                'Filedata': (filename, file_bytes)
-            }
 
-        ans = session.post(url=url, data=data, files=files, verify=False)
+        ans = session.post(url=url, json=json, files=files, verify=False)
         self.__check_error(ans)
 
         return ans

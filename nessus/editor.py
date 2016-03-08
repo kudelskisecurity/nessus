@@ -5,6 +5,7 @@ from typing import Mapping, Union, Iterable
 from nessus.base import LibNessusBase
 from nessus.model import lying_exist
 
+
 class NessusTemplate:
     """
     nessus is lying with:

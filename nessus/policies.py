@@ -1,8 +1,10 @@
 from enum import Enum
+from uuid import uuid4
 
-from typing import Iterable, Mapping, Union
+from typing import Iterable, Mapping, Union, Tuple
 
 from nessus.base import LibNessusBase
+from nessus.editor import NessusTemplate
 from nessus.file import NessusRemoteFile
 from nessus.model import lying_exist
 
@@ -72,22 +74,42 @@ class NessusPolicy:
 class LibNessusPolicies(LibNessusBase):
     def list(self) -> Iterable[NessusPolicy]:
         """
-        get the list of policy
+        Returns the policy list.
         :return: iterable of available policy
         """
         ans = self._get('policies')
         return {NessusPolicy.from_json(policy) for policy in ans.json()['policies']}
 
     def delete(self, policy: NessusPolicy) -> None:
+        """
+        Delete a policy.
+        :param policy: one to delete
+        """
         url = 'policies/{}'.format(policy.id)
         self._delete(url)
 
+    def create(self, template: NessusTemplate, name: str = str(uuid4())) -> Tuple[int, str]:
+        """
+        Creates a policy.
+        :param template: what to create
+        :param name: name of the policy
+        :return: (policy_id, policy_name)
+        """
+        json = {
+            'uuid': template.uuid,
+            'settings': {
+                'name': name
+            },
+        }
+        ans = self._post('policies', json=json)
+        return ans.json()['policy_id'], ans.json()['policy_name']
+
     def import_(self, remote_file: NessusRemoteFile) -> NessusPolicy:
         """
-        import the given file as a policy
+        Import an existing policy uploaded using Nessus.file (.nessus format only).
         sorry about the name, but in python 'import' is a reserved keyword
         :param remote_file: file to treat as nessus policy
         """
-        data = {'file': remote_file.name}
-        ans = self._post('policies/import', data=data)
+        json = {'file': remote_file.name}
+        ans = self._post('policies/import', json=json)
         return NessusPolicy.from_json(ans.json())
