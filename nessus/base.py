@@ -19,9 +19,9 @@ class LibNessusBase:
         :param api_access_key: access key to the API
         :param api_secret_key: secret key to the API
         """
-        self.url = url
-        self.api_access_key = api_access_key
-        self.api_secret_key = api_secret_key
+        self.__url = url
+        self.__api_access_key = api_access_key
+        self.__api_secret_key = api_secret_key
 
         self.__get_session_cache = None
 
@@ -36,7 +36,7 @@ class LibNessusBase:
 
         session = requests.Session()
 
-        session.headers['X-ApiKeys'] = 'accessKey={}; secretKey={};'.format(self.api_access_key, self.api_secret_key)
+        session.headers['X-ApiKeys'] = 'accessKey={}; secretKey={};'.format(self.__api_access_key, self.__api_secret_key)
 
         self.__get_session_cache = session
         return session
@@ -48,7 +48,7 @@ class LibNessusBase:
         :return: response from requests
         """
         session = self.__get_session()
-        url = '{}/{}'.format(self.url, path)
+        url = '{}/{}'.format(self.__url, path)
 
         ans = session.get(url=url, verify=False)
         self.__check_error(ans)
@@ -62,7 +62,7 @@ class LibNessusBase:
         :return: response from requests
         """
         session = self.__get_session()
-        url = '{}/{}'.format(self.url, path)
+        url = '{}/{}'.format(self.__url, path)
 
         ans = session.delete(url=url, verify=False)
         self.__check_error(ans)
@@ -79,7 +79,7 @@ class LibNessusBase:
         :return: response from requests
         """
         session = self.__get_session()
-        url = '{}/{}'.format(self.url, path)
+        url = '{}/{}'.format(self.__url, path)
 
         ans = session.post(url=url, json=json, files=files, verify=False)
         self.__check_error(ans)
