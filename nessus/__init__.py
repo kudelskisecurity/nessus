@@ -26,6 +26,8 @@ class LibNessus:
         self.api_access_key = api_access_key
         self.api_secret_key = api_secret_key
 
+        self.__get_session_cache = None
+
     def file_upload(self, nessus_file: NessusFile) -> NessusRemoteFile:
         """
         Uploads a file.
@@ -62,17 +64,20 @@ class LibNessus:
 
         return {NessusScan.from_json(elem) for elem in ans.json()['scans']}
 
-
-    # TODO dynamic programming
     def __get_session(self) -> requests.Session:
         """
         return a session with some useful fields already set
         :return: session object suitable to connect to nessus
         """
+
+        if self.__get_session_cache is not None:
+            return self.__get_session_cache
+
         session = requests.Session()
 
         session.headers['X-ApiKeys'] = 'accessKey={}; secretKey={};'.format(self.api_access_key, self.api_secret_key)
 
+        self.__get_session_cache = session
         return session
 
     def __get(self, path: str) -> requests.Response:
