@@ -1,3 +1,4 @@
+from nessus.editor import LibNessusEditor
 from nessus.file import LibNessusFile
 from nessus.policies import LibNessusPolicies
 from nessus.scans import LibNessusScans
@@ -10,6 +11,8 @@ class LibNessus:
             'api_access_key': api_access_key,
             'api_secret_key': api_secret_key,
         }
+
         self.file = LibNessusFile(**args)
         self.scans = LibNessusScans(**args)
         self.policies = LibNessusPolicies(**args)
+        self.editor = LibNessusEditor(**args)
