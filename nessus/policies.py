@@ -1,3 +1,6 @@
+"""
+sub modules for everything about the policies
+"""
 from enum import Enum
 from uuid import uuid4
 
@@ -23,11 +26,14 @@ class NessusPolicy:
      - `visibility` which is not always there and which is an int
     """
 
+    # pylint: disable=too-many-instance-attributes
+    # pylint: disable=too-few-public-methods
+
+    # pylint: disable=too-many-arguments
     def __init__(self, policy_id: int, template_uuid: str, name: str, description: str, owner_id: str, owner: str,
-                 shared: int,
-                 user_permissions: int, creation_date: int, last_modification_date: int, visibility: int,
-                 no_target: bool) -> None:
-        self.id = policy_id
+                 shared: int, user_permissions: int, creation_date: int, last_modification_date: int,
+                 visibility: NessusPolicyVisibility, no_target: bool) -> None:
+        self.id = policy_id  # pylint: disable= invalid-name
         self.template_uuid = template_uuid
         self.name = name
         self.description = description
@@ -52,8 +58,14 @@ class NessusPolicy:
     def __hash__(self):
         return hash(self.id)
 
+    # pylint: disable=too-many-arguments
     @staticmethod
     def from_json(json_dict: Mapping[str, Union[int, str, bool]]) -> 'NessusPolicy':
+        """
+        generate a NessusPolicy by parsing the given json
+        :param json_dict: json encoded NessusPolicy
+        :return: extracted NessusPolicy
+        """
         policy_id = int(json_dict['id'])
         template_uuid = str(json_dict['template_uuid'])
         name = str(json_dict['name'])
@@ -72,6 +84,10 @@ class NessusPolicy:
 
 
 class LibNessusPolicies(LibNessusBase):
+    """
+    modules handling /policies
+    """
+
     def list(self) -> Iterable[NessusPolicy]:
         """
         Returns the policy list.
@@ -88,6 +104,7 @@ class LibNessusPolicies(LibNessusBase):
         url = 'policies/{}'.format(policy.id)
         self._delete(url)
 
+    # pylint: disable=bad-whitespace
     def create(self, template: NessusTemplate, name: str = str(uuid4())) -> Tuple[int, str]:
         """
         Creates a policy.

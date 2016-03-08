@@ -1,7 +1,7 @@
 import re
 
 import requests
-from typing import Optional, Mapping, IO
+from typing import Optional, Mapping, IO, Tuple, Any
 
 from nessus.error import NessusInternalServerError, NessusError, NessusPolicyInUseError, \
     NessusDuplicateFilenameLimitError
@@ -23,7 +23,7 @@ class LibNessusBase:
         self.__api_access_key = api_access_key
         self.__api_secret_key = api_secret_key
 
-        self.__get_session_cache = None
+        self.__get_session_cache = None  # type: requests.Session
 
     def __get_session(self) -> requests.Session:
         """
@@ -43,6 +43,13 @@ class LibNessusBase:
         return session
 
     def __request(self, method: str, path: str, **kwargs) -> requests.Response:
+        """
+        common method to allow even more code compaction
+        :param method: http method to use
+        :param path: path in nessus
+        :param kwargs: forwarded to requests.session.request
+        :return: response from requests
+        """
         session = self.__get_session()
         url = '{}/{}'.format(self.__url, path)
 
@@ -67,13 +74,13 @@ class LibNessusBase:
         """
         return self.__request('DELETE', path)
 
-    def _post(self, path: str, json: Optional[Mapping[str, str]] = None,
-              files: Optional[IO[bytes]] = None) -> requests.Response:
+    def _post(self, path: str, json: Optional[Mapping[str, Any]] = None,
+              files: Optional[Mapping[str, Tuple[str, IO[bytes]]]] = None) -> requests.Response:
         """
         POST request to nessus
         :param path: path in nessus ('https://localhost:8834/file/upload' -> 'file/upload')
         :param json: POST data to pass to requests
-        :param file_bytes: opened file to passe to requests
+        :param files: opened file to passe to requests
         :return: response from requests
         """
         return self.__request('POST', path, json=json, files=files)

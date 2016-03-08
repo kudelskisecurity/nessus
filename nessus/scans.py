@@ -1,21 +1,32 @@
+"""
+sub modules for everything about the scans
+"""
+
 from enum import Enum
 from uuid import uuid4
 
-from nessus.policies import NessusPolicy
 from typing import Iterable, Mapping, Union, Optional
 
 from nessus.base import LibNessusBase
 from nessus.editor import NessusTemplate
 from nessus.model import lying_exist, lying_type
+from nessus.policies import NessusPolicy
 
 
 class NessusScanType(Enum):
+    """
+    type of scan
+    """
     local = 'local'
     remote = 'remote'
     agent = 'agent'
 
 
 class NessusScanStatus(Enum):
+    """
+    current status of scan
+    `empty` was added because sometimes, nessus return it (but it is not documented)
+    """
     completed = 'completed'
     aborted = 'aborted'
     imported = 'imported'
@@ -29,7 +40,7 @@ class NessusScanStatus(Enum):
     stopping = 'stopping'
     stopped = 'stopped'
 
-    empty = 'empty'  # should not exist but nessus is lying
+    empty = 'empty'
 
 
 class NessusScan:
@@ -172,6 +183,11 @@ class NessusScanCreated:
 
 
 class LibNessusScans(LibNessusBase):
+    """
+    module handling /scans
+    """
+
+    # pylint: disable=bad-whitespace
     def create(self, policy: NessusPolicy, name: str = str(uuid4()), template: Optional[NessusTemplate] = None,
                default_targets: Iterable[str] = list('localhost')) -> NessusScanCreated:
         """

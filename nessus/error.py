@@ -1,3 +1,6 @@
+"""
+error generated from nessus, everything derive from NessusError
+"""
 import requests
 
 
@@ -24,6 +27,10 @@ class NessusInternalServerError(NessusError):
 
 
 class NessusPolicyInUseError(NessusError):
+    """
+    policy in use (usually when wanting to delete it)
+    """
+
     def __init__(self, response: requests.Response, policy_name: str, policy_id: int) -> None:
         super().__init__(response)
         self.policy_name = policy_name
@@ -31,6 +38,10 @@ class NessusPolicyInUseError(NessusError):
 
 
 class NessusDuplicateFilenameLimitError(NessusError):
+    """
+    if you upload to much file with the same filename, it will fail
+    """
+
     def __init__(self, response: requests.Response, filename: int) -> None:
         super().__init__(response)
         self.filename = filename
