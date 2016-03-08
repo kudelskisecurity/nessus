@@ -36,10 +36,20 @@ class LibNessusBase:
 
         session = requests.Session()
 
-        session.headers['X-ApiKeys'] = 'accessKey={}; secretKey={};'.format(self.__api_access_key, self.__api_secret_key)
+        session.headers['X-ApiKeys'] = 'accessKey={}; secretKey={};'.format(self.__api_access_key,
+                                                                            self.__api_secret_key)
 
         self.__get_session_cache = session
         return session
+
+    def __request(self, method: str, path: str, **kwargs) -> requests.Response:
+        session = self.__get_session()
+        url = '{}/{}'.format(self.__url, path)
+
+        ans = session.request(method=method, url=url, verify=False, **kwargs)
+        self.__check_error(ans)
+
+        return ans
 
     def _get(self, path: str) -> requests.Response:
         """
@@ -47,13 +57,7 @@ class LibNessusBase:
         :param path: path in nessus ('https://localhost:8834/file/upload' -> 'file/upload')
         :return: response from requests
         """
-        session = self.__get_session()
-        url = '{}/{}'.format(self.__url, path)
-
-        ans = session.get(url=url, verify=False)
-        self.__check_error(ans)
-
-        return ans
+        return self.__request('GET', path)
 
     def _delete(self, path: str) -> requests.Response:
         """
@@ -61,13 +65,7 @@ class LibNessusBase:
         :param path: path in nessus ('https://localhost:8834/file/upload' -> 'file/upload')
         :return: response from requests
         """
-        session = self.__get_session()
-        url = '{}/{}'.format(self.__url, path)
-
-        ans = session.delete(url=url, verify=False)
-        self.__check_error(ans)
-
-        return ans
+        return self.__request('DELETE', path)
 
     def _post(self, path: str, json: Optional[Mapping[str, str]] = None,
               files: Optional[IO[bytes]] = None) -> requests.Response:
@@ -78,13 +76,7 @@ class LibNessusBase:
         :param file_bytes: opened file to passe to requests
         :return: response from requests
         """
-        session = self.__get_session()
-        url = '{}/{}'.format(self.__url, path)
-
-        ans = session.post(url=url, json=json, files=files, verify=False)
-        self.__check_error(ans)
-
-        return ans
+        return self.__request('POST', path, json=json, files=files)
 
     @staticmethod
     def __check_error(response: requests.Response) -> None:
