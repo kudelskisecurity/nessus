@@ -10,7 +10,7 @@ BEGIN {
 	json_tail = "\t\treturn " classname "("
 }
 
-/[^{}]$/ {
+/\s*["]/ {
 	name = $3
 	type = to_py_type($6)
 
