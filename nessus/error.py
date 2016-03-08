@@ -22,15 +22,15 @@ class NessusInternalServerError(NessusError):
     """
     pass
 
-class NessusPolicyInUseError(NessusError):
 
+class NessusPolicyInUseError(NessusError):
     def __init__(self, response: requests.Response, policy_name: str, policy_id: int) -> None:
         super().__init__(response)
         self.policy_name = policy_name
         self.policy_id = policy_id
 
-class NessusDuplicateFilenameLimitError(NessusError):
 
+class NessusDuplicateFilenameLimitError(NessusError):
     def __init__(self, response: requests.Response, filename: int) -> None:
         super().__init__(response)
         self.filename = filename

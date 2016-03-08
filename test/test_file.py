@@ -1,6 +1,6 @@
 from tempfile import NamedTemporaryFile
 
-from nessus import NessusFile
+from nessus.file import NessusFile
 from test import TestBase
 
 
@@ -9,4 +9,4 @@ class TestFile(TestBase):
         with NamedTemporaryFile() as tmpfile:
             file = NessusFile(path=tmpfile.name)
 
-            self.nessus.file_upload(file)
+            self.nessus.file.upload(file)
