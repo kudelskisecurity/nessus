@@ -28,7 +28,7 @@ class NessusScanStatus(Enum):
     stopping = 'stopping'
     stopped = 'stopped'
 
-    empty = 'empty' # should not exist but nessus is lying
+    empty = 'empty'  # should not exist but nessus is lying
 
 
 class NessusScan:
@@ -78,7 +78,7 @@ class NessusScan:
         id = int(json_dict['id'])
         uuid = str(json_dict['uuid'])
         name = str(json_dict['name'])
-        type = lying_type(json_dict['type'], NessusScanType, lambda x: x) # it's None actually
+        type = lying_type(json_dict['type'], NessusScanType, lambda x: x)  # it's None actually
         owner = str(json_dict['owner'])
         enabled = bool(json_dict['enabled'])
         folder_id = int(json_dict['folder_id'])
@@ -171,6 +171,21 @@ class NessusScanCreated:
 
 
 class LibNessusScans(LibNessusBase):
+    def create(self, template: NessusTemplate, name: str = str(uuid4()),
+               default_targets: Iterable[str] = list('localhost')) -> NessusScanCreated:
+        json = {
+            'uuid': template.uuid,
+            'settings': {
+                'name': name,
+                'enabled': False,
+                'text_targets': ','.join(default_targets),
+            },
+        }
+
+        ans = self._post('scans', json=json)
+
+        return NessusScanCreated.from_json(ans.json()['scan'])
+
     def list(self) -> Iterable[NessusScan]:
         ans = self._get('scans')
 
@@ -178,17 +193,3 @@ class LibNessusScans(LibNessusBase):
             return set()
 
         return {NessusScan.from_json(elem) for elem in ans.json()['scans']}
-
-    def create(self, template: NessusTemplate, name: str = str(uuid4())) -> NessusScanCreated:
-        json = {
-            'uuid': template.uuid,
-            'settings': {
-                'name': name,
-                'enabled': False,
-                'text_targets': 'localhost',
-            },
-        }
-
-        ans = self._post('scans', json=json)
-
-        return NessusScanCreated.from_json(ans.json()['scan'])
