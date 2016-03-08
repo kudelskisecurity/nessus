@@ -1,7 +1,8 @@
 from enum import Enum
 from uuid import uuid4
 
-from typing import Iterable, Mapping, Union
+from nessus.policies import NessusPolicy
+from typing import Iterable, Mapping, Union, Optional
 
 from nessus.base import LibNessusBase
 from nessus.editor import NessusTemplate
@@ -171,12 +172,27 @@ class NessusScanCreated:
 
 
 class LibNessusScans(LibNessusBase):
-    def create(self, template: NessusTemplate, name: str = str(uuid4()),
+    def create(self, policy: NessusPolicy, name: str = str(uuid4()), template: Optional[NessusTemplate] = None,
                default_targets: Iterable[str] = list('localhost')) -> NessusScanCreated:
+        """
+        Creates a scan.
+        :param policy: policy to use
+        :param name: name you want for the scan
+        :param template: template will be taken from policy if not given
+        :param default_targets: need to have at least an element
+        :return: created scan
+        """
+
+        if template is None:
+            template_uuid = policy.template_uuid
+        else:
+            template_uuid = template.uuid
+
         json = {
-            'uuid': template.uuid,
+            'uuid': template_uuid,
             'settings': {
                 'name': name,
+                'policy_id': policy.id,
                 'enabled': False,
                 'text_targets': ','.join(default_targets),
             },
