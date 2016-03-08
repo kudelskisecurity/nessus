@@ -1,8 +1,11 @@
 from enum import Enum
+from uuid import uuid4
 
 from typing import Iterable, Mapping, Union
 
 from nessus.base import LibNessusBase
+from nessus.editor import NessusTemplate
+from nessus.model import lying_exist, lying_type
 
 
 class NessusScanType(Enum):
@@ -25,8 +28,16 @@ class NessusScanStatus(Enum):
     stopping = 'stopping'
     stopped = 'stopped'
 
+    empty = 'empty' # should not exist but nessus is lying
+
 
 class NessusScan:
+    """
+    nessus is lying with:
+     - `type` which is none but should be NessusScanType (str)
+     - `status` which can be 'empty' but should be one of NessusScanStatus
+    """
+
     def __init__(self, id: int, uuid: str, name: str, type: NessusScanType, owner: str, enabled: bool, folder_id: int,
                  read: bool, status: NessusScanStatus, shared: bool, user_permissions: int, creation_date: int,
                  last_modification_date: int, control: bool, starttime: str, timezone: str, rrules: str,
@@ -67,7 +78,7 @@ class NessusScan:
         id = int(json_dict['id'])
         uuid = str(json_dict['uuid'])
         name = str(json_dict['name'])
-        type = NessusScanType(json_dict['type'])
+        type = lying_type(json_dict['type'], NessusScanType, lambda x: x) # it's None actually
         owner = str(json_dict['owner'])
         enabled = bool(json_dict['enabled'])
         folder_id = int(json_dict['folder_id'])
@@ -81,10 +92,82 @@ class NessusScan:
         starttime = str(json_dict['starttime'])
         timezone = str(json_dict['timezone'])
         rrules = str(json_dict['rrules'])
-        use_dashboard = bool(json_dict['use_dashboard'])
+        use_dashboard = lying_exist(json_dict, 'use_dashboard', bool)
 
         return NessusScan(id, uuid, name, type, owner, enabled, folder_id, read, status, shared, user_permissions,
                           creation_date, last_modification_date, control, starttime, timezone, rrules, use_dashboard)
+
+
+class NessusScanCreated:
+    def __init__(self, creation_date: int, custom_targets: str, default_permisssions: int, description: str,
+                 emails: str, id: int, last_modification_date: int, name: str, notification_filter_type: str,
+                 notification_filters: str, owner: str, owner_id: int, policy_id: int, enabled: bool, rrules: str,
+                 scanner_id: int, shared: int, starttime: str, tag_id: int, timezone: str, type: str,
+                 user_permissions: int, uuid: str, use_dashboard: bool) -> None:
+        self.creation_date = creation_date
+        self.custom_targets = custom_targets
+        self.default_permisssions = default_permisssions
+        self.description = description
+        self.emails = emails
+        self.id = id
+        self.last_modification_date = last_modification_date
+        self.name = name
+        self.notification_filter_type = notification_filter_type
+        self.notification_filters = notification_filters
+        self.owner = owner
+        self.owner_id = owner_id
+        self.policy_id = policy_id
+        self.enabled = enabled
+        self.rrules = rrules
+        self.scanner_id = scanner_id
+        self.shared = shared
+        self.starttime = starttime
+        self.tag_id = tag_id
+        self.timezone = timezone
+        self.type = type
+        self.user_permissions = user_permissions
+        self.uuid = uuid
+        self.use_dashboard = use_dashboard
+
+    def __repr__(self) -> str:
+        form = 'NessusScanCreated({creation_date!r}, {custom_targets!r}, {default_permisssions!r}, {description!r}, ' \
+               '{emails!r}, {id!r}, {last_modification_date!r}, {name!r}, {notification_filter_type!r}, ' \
+               '{notification_filters!r}, {owner!r}, {owner_id!r}, {policy_id!r}, {enabled!r}, {rrules!r}, ' \
+               '{scanner_id!r}, {shared!r}, {starttime!r}, {tag_id!r}, {timezone!r}, {type!r}, ' \
+               '{user_permissions!r}, {uuid!r}, {use_dashboard!r})'
+        return form.format(**self.__dict__)
+
+    @staticmethod
+    def from_json(json_dict: Mapping[str, Union[int, str, bool]]) -> 'NessusScanCreated':
+        creation_date = int(json_dict['creation_date'])
+        custom_targets = str(json_dict['custom_targets'])
+        default_permisssions = int(json_dict['default_permisssions'])
+        description = str(json_dict['description'])
+        emails = str(json_dict['emails'])
+        scan_id = int(json_dict['id'])
+        last_modification_date = int(json_dict['last_modification_date'])
+        name = str(json_dict['name'])
+        notification_filter_type = lying_exist(json_dict, 'notification_filter_type', str)
+        notification_filters = str(json_dict['notification_filters'])
+        owner = str(json_dict['owner'])
+        owner_id = int(json_dict['owner_id'])
+        policy_id = int(json_dict['policy_id'])
+        enabled = bool(json_dict['enabled'])
+        rrules = str(json_dict['rrules'])
+        scanner_id = int(json_dict['scanner_id'])
+        shared = int(json_dict['shared'])
+        starttime = str(json_dict['starttime'])
+        tag_id = lying_exist(json_dict, 'tag_id', int)
+        timezone = str(json_dict['timezone'])
+        type = str(json_dict['type'])
+        user_permissions = int(json_dict['user_permissions'])
+        uuid = str(json_dict['uuid'])
+        use_dashboard = bool(json_dict['use_dashboard'])
+
+        return NessusScanCreated(creation_date, custom_targets, default_permisssions, description, emails, scan_id,
+                                 last_modification_date, name, notification_filter_type, notification_filters, owner,
+                                 owner_id, policy_id, enabled, rrules, scanner_id, shared, starttime, tag_id, timezone,
+                                 type, user_permissions, uuid, use_dashboard)
 
 
 class LibNessusScans(LibNessusBase):
@@ -95,3 +178,17 @@ class LibNessusScans(LibNessusBase):
             return set()
 
         return {NessusScan.from_json(elem) for elem in ans.json()['scans']}
+
+    def create(self, template: NessusTemplate, name: str = str(uuid4())) -> NessusScanCreated:
+        json = {
+            'uuid': template.uuid,
+            'settings': {
+                'name': name,
+                'enabled': False,
+                'text_targets': 'localhost',
+            },
+        }
+
+        ans = self._post('scans', json=json)
+
+        return NessusScanCreated.from_json(ans.json()['scan'])

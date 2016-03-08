@@ -100,6 +100,7 @@ class LibNessusPolicies(LibNessusBase):
             'settings': {
                 'name': name
             },
+            'audits': {},
         }
         ans = self._post('policies', json=json)
         return ans.json()['policy_id'], ans.json()['policy_name']

@@ -34,16 +34,25 @@ class TestPolicies(TestBase):
 
     def test_create(self):
         old_policies = {p.id for p in self.nessus.policies.list()}
-        templates = set(self.nessus.editor.list(NessusTemplateType.policy))
-        template = templates.pop()
+        templates = self.nessus.editor.list(NessusTemplateType.policy)
+        template = next(t for t in templates if t.name == 'basic')
 
         policy_id, policy_name = self.nessus.policies.create(template)
+        self.__add_policy_id_to_remove(policy_id)
 
         new_policies = {p.id for p in self.nessus.policies.list()}
         self.assertIn(policy_id, new_policies)
 
         old_policies.add(policy_id)
         self.assertSetEqual(old_policies, new_policies)
+
+    def __add_policy_id_to_remove(self, policy_id: int) -> None:
+        class P:
+            pass
+
+        p = P()
+        p.id = policy_id
+        self.added_policies.add(p)
 
     def test_delete(self):
         local_file = NessusFile('test/data/glibc')
