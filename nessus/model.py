@@ -22,6 +22,14 @@ class NessusPolicy:
         self.last_modification_date = last_modification_date
         self.visibility = visibility
 
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other):
+        if not isinstance(other, NessusPolicy):
+            return False
+        return self.id == other.id
+
     def __repr__(self) -> str:
         form = 'NessusPolicy({id!r}, {template_uuid!r}, {name!r}, {description!r}, {owner_id!r}, {owner!r}, ' \
                '{shared!r}, {user_permissions!r}, {creation_date!r}, {last_modification_date!r}, {visibility!r})'
@@ -69,6 +77,14 @@ class NessusScan:
         self.starttime = starttime
         self.timezone = timezone
         self.rrules = rrules
+
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other):
+        if not isinstance(other, NessusScan):
+            return False
+        return self.id == other.id
 
     def __repr__(self) -> str:
         form = 'NessusScan({uuid!r}, {uuid!r}, {name!r}, {owner!r}, {enabled!r}, {folder_id!r}, {read!r}, ' \
