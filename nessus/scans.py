@@ -1,15 +1,40 @@
+from enum import Enum
+
 from typing import Iterable, Mapping, Union
 
 from nessus.base import LibNessusBase
 
 
+class NessusScanType(Enum):
+    local = 'local'
+    remote = 'remote'
+    agent = 'agent'
+
+
+class NessusScanStatus(Enum):
+    completed = 'completed'
+    aborted = 'aborted'
+    imported = 'imported'
+    pending = 'pending'
+    running = 'running'
+    resuming = 'resuming'
+    canceling = 'canceling'
+    cancelled = 'cancelled'
+    pausing = 'pausing'
+    paused = 'paused'
+    stopping = 'stopping'
+    stopped = 'stopped'
+
+
 class NessusScan:
-    def __init__(self, scan_id: int, uuid: str, name: str, owner: str, enabled: bool, folder_id: int, read: bool,
-                 status: str, shared: bool, user_permissions: int, creation_date: int, last_modification_date: int,
-                 control: bool, starttime: str, timezone: str, rrules: str) -> None:
-        self.id = scan_id
+    def __init__(self, id: int, uuid: str, name: str, type: NessusScanType, owner: str, enabled: bool, folder_id: int,
+                 read: bool, status: NessusScanStatus, shared: bool, user_permissions: int, creation_date: int,
+                 last_modification_date: int, control: bool, starttime: str, timezone: str, rrules: str,
+                 use_dashboard: bool) -> None:
+        self.id = id
         self.uuid = uuid
         self.name = name
+        self.type = type
         self.owner = owner
         self.enabled = enabled
         self.folder_id = folder_id
@@ -23,31 +48,31 @@ class NessusScan:
         self.starttime = starttime
         self.timezone = timezone
         self.rrules = rrules
+        self.use_dashboard = use_dashboard
+
+    def __repr__(self) -> str:
+        form = 'NessusTemplate({id!r}, {uuid!r}, {name!r}, {type!r}, {owner!r}, {enabled!r}, {folder_id!r}, ' \
+               '{read!r}, {status!r}, {shared!r}, {user_permissions!r}, {creation_date!r}, ' \
+               '{last_modification_date!r}, {control!r}, {starttime!r}, {timezone!r}, {rrules!r}, {use_dashboard!r})'
+        return form.format(**self.__dict__)
+
+    def __eq__(self, other):
+        return isinstance(other, NessusScan) and self.id == other.id
 
     def __hash__(self):
         return hash(self.id)
 
-    def __eq__(self, other):
-        if not isinstance(other, NessusScan):
-            return False
-        return self.id == other.id
-
-    def __repr__(self) -> str:
-        form = 'NessusScan({uuid!r}, {uuid!r}, {name!r}, {owner!r}, {enabled!r}, {folder_id!r}, {read!r}, ' \
-               '{status!r}, {shared!r}, {user_permissions!r}, {creation_date!r}, {last_modification_date!r}, ' \
-               '{control!r}, {starttime!r}, {timezone!r}, {rrules!r})'
-        return form.format(**self.__dict__)
-
     @staticmethod
     def from_json(json_dict: Mapping[str, Union[int, str, bool]]) -> 'NessusScan':
-        scan_id = int(json_dict['id'])
+        id = int(json_dict['id'])
         uuid = str(json_dict['uuid'])
         name = str(json_dict['name'])
+        type = NessusScanType(json_dict['type'])
         owner = str(json_dict['owner'])
         enabled = bool(json_dict['enabled'])
         folder_id = int(json_dict['folder_id'])
         read = bool(json_dict['read'])
-        status = str(json_dict['status'])
+        status = NessusScanStatus(json_dict['status'])
         shared = bool(json_dict['shared'])
         user_permissions = int(json_dict['user_permissions'])
         creation_date = int(json_dict['creation_date'])
@@ -56,9 +81,10 @@ class NessusScan:
         starttime = str(json_dict['starttime'])
         timezone = str(json_dict['timezone'])
         rrules = str(json_dict['rrules'])
+        use_dashboard = bool(json_dict['use_dashboard'])
 
-        return NessusScan(scan_id, uuid, name, owner, enabled, folder_id, read, status, shared, user_permissions,
-                          creation_date, last_modification_date, control, starttime, timezone, rrules)
+        return NessusScan(id, uuid, name, type, owner, enabled, folder_id, read, status, shared, user_permissions,
+                          creation_date, last_modification_date, control, starttime, timezone, rrules, use_dashboard)
 
 
 class LibNessusScans(LibNessusBase):

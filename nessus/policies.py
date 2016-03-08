@@ -1,18 +1,30 @@
-from typing import Iterable, Optional, Mapping, Union
+from enum import Enum
+
+from typing import Iterable, Mapping, Union
 
 from nessus.base import LibNessusBase
 from nessus.file import NessusRemoteFile
+from nessus.model import lying_exist
+
+
+class NessusPolicyVisibility(Enum):
+    """
+    should be int value but nessus is lying
+    """
+    private = 'private'
+    shared = 'shared'
 
 
 class NessusPolicy:
     """
     nessus is lying with:
-     - `visibility` which is not always there, and is not an int
+     - `visibility` which is not always there and which is an int
     """
 
     def __init__(self, policy_id: int, template_uuid: str, name: str, description: str, owner_id: str, owner: str,
-                 shared: int, user_permissions: int, creation_date: int, last_modification_date: int,
-                 visibility: Optional[int]) -> None:
+                 shared: int,
+                 user_permissions: int, creation_date: int, last_modification_date: int, visibility: int,
+                 no_target: bool) -> None:
         self.id = policy_id
         self.template_uuid = template_uuid
         self.name = name
@@ -24,19 +36,19 @@ class NessusPolicy:
         self.creation_date = creation_date
         self.last_modification_date = last_modification_date
         self.visibility = visibility
-
-    def __hash__(self):
-        return hash(self.id)
-
-    def __eq__(self, other):
-        if not isinstance(other, NessusPolicy):
-            return False
-        return self.id == other.id
+        self.no_target = no_target
 
     def __repr__(self) -> str:
         form = 'NessusPolicy({id!r}, {template_uuid!r}, {name!r}, {description!r}, {owner_id!r}, {owner!r}, ' \
-               '{shared!r}, {user_permissions!r}, {creation_date!r}, {last_modification_date!r}, {visibility!r})'
+               '{shared!r}, {user_permissions!r}, {creation_date!r}, {last_modification_date!r}, {visibility!r}, ' \
+               '{no_target!r})'
         return form.format(**self.__dict__)
+
+    def __eq__(self, other):
+        return isinstance(other, NessusPolicy) and self.id == other.id
+
+    def __hash__(self):
+        return hash(self.id)
 
     @staticmethod
     def from_json(json_dict: Mapping[str, Union[int, str, bool]]) -> 'NessusPolicy':
@@ -50,14 +62,11 @@ class NessusPolicy:
         user_permissions = int(json_dict['user_permissions'])
         creation_date = int(json_dict['creation_date'])
         last_modification_date = int(json_dict['last_modification_date'])
-
-        if 'visibility' in json_dict:
-            visibility = str(json_dict['visibility'])
-        else:
-            visibility = None
+        visibility = lying_exist(json_dict, 'visibility', NessusPolicyVisibility)
+        no_target = bool(json_dict['no_target'])
 
         return NessusPolicy(policy_id, template_uuid, name, description, owner_id, owner, shared, user_permissions,
-                            creation_date, last_modification_date, visibility)
+                            creation_date, last_modification_date, visibility, no_target)
 
 
 class LibNessusPolicies(LibNessusBase):
