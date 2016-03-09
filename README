@@ -11,6 +11,12 @@ If you are used to read the Nessus API, you will find it quite easy to use,
 python objects map to resources (or subset of resources), libnessus calls map to
 REST API.
 
+## install
+It is using a standard `setup.py`, so you can use
+```sh
+easy_install .
+```
+
 ## examples
 If you want to use it, I recommend that you look into the test with the user
 stories, but here is a simple example:
