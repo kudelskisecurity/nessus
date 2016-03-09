@@ -4,15 +4,6 @@ from test import TestBase
 
 
 class TestPolicies(TestBase):
-    def setUp(self):
-        super().setUp()
-        self.added_policies = set()
-
-    def tearDown(self):
-        super().tearDown()
-
-        for policy in self.added_policies:
-            self.nessus.policies.delete(policy)
 
     def test_list_return_same_items(self):
         old_policies = self.nessus.policies.list()

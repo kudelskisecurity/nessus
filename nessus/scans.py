@@ -25,7 +25,9 @@ class NessusScanType(Enum):
 class NessusScanStatus(Enum):
     """
     current status of scan
-    `empty` was added because sometimes, nessus return it (but it is not documented)
+    lies:
+     - `empty` was added because sometimes, nessus return it (but it is not documented)
+     - `canceled` is returned instead of `cancelled`
     """
     completed = 'completed'
     aborted = 'aborted'
@@ -41,6 +43,7 @@ class NessusScanStatus(Enum):
     stopped = 'stopped'
 
     empty = 'empty'
+    canceled = 'canceled'
 
 
 class NessusScan:
@@ -189,7 +192,7 @@ class LibNessusScans(LibNessusBase):
 
     # pylint: disable=bad-whitespace
     def create(self, policy: NessusPolicy, name: str = str(uuid4()), template: Optional[NessusTemplate] = None,
-               default_targets: Iterable[str] = list('localhost')) -> NessusScanCreated:
+               default_targets: Iterable[str] = ('localhost',)) -> NessusScanCreated:
         """
         Creates a scan.
         :param policy: policy to use
@@ -225,3 +228,23 @@ class LibNessusScans(LibNessusBase):
             return set()
 
         return {NessusScan.from_json(elem) for elem in ans.json()['scans']}
+
+    def delete(self, scan: NessusScan) -> None:
+        """
+        Deletes a scan.
+        Scans in running, paused or stopping states can not be deleted.
+        :param scan: the soon-to-be-deleted
+        """
+        url = 'scans/{}'.format(scan.id)
+        self._delete(url)
+
+    def launch(self, scan: NessusScan, alt_targets: Optional[Iterable[str]] = None) -> str:
+        """
+        Launches a scan.
+        :param scan: the soon-to-be-launch
+        :param alt_targets: target to scan, if not given, default to the one set during scan creation
+        :return: uuid of the launched scan
+        """
+        url = 'scans/{scan_id}/launch'.format(scan_id=scan.id)
+        ans = self._post(url, json={})
+        return ans.json()['scan_uuid']

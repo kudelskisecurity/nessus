@@ -50,6 +50,8 @@ class LibNessusBase:
         :param kwargs: forwarded to requests.session.request
         :return: response from requests
         """
+        assert not path.startswith('/')
+
         session = self.__get_session()
         url = '{}/{}'.format(self.__url, path)
 
