@@ -4,10 +4,11 @@ dear Nessus dev, if you want to see where there is issues with your REST API, pl
 """
 import functools
 
-from typing import TypeVar, Mapping, Union, Callable, Any
+from typing import TypeVar, Mapping, Union, Callable, Any, Optional
 
 T = TypeVar('T')
 U = TypeVar('U')
+V = TypeVar('V')
 
 JsonType = Union[int, str, bool]
 
@@ -37,7 +38,8 @@ class Object:
         return ret.format(**values)
 
 
-def lying_type(value: U, excepted_type: Callable[[U], Any], actual_type: Callable[[U], T] = lambda x: x) -> T:
+def lying_type(value: U, excepted_type: Callable[[U], Any], actual_type: Callable[[U], T] = lambda x: x,
+               default: V = ...) -> Union[T,Any]:
     """
     document that we excepted the given type for the given value, but it was not the case
     a NOP would be `return excepted_type(value)`
@@ -46,6 +48,8 @@ def lying_type(value: U, excepted_type: Callable[[U], Any], actual_type: Callabl
     :param actual_type: real type we got
     :return: type we got
     """
+    if default is not ...:
+        return default
     return actual_type(value)
 
 
@@ -61,6 +65,14 @@ def __default_if_args(if_no_arg: Callable[[], T], if_arg: Callable[[Any], T], *a
     if args:
         return if_arg(*args)
     return if_no_arg()
+
+
+def lying_exist_and_type(json_dict: Mapping[str, JsonType], excepted_name: str, excepted_type: Callable[[Any], T],
+                         actual_type: Callable[[Any], U], default: Optional[U] = None) -> U:
+    if excepted_name in json_dict:
+        return actual_type(json_dict[excepted_name])
+    else:
+        return default
 
 
 def lying_exist(json_dict: Mapping[str, JsonType], excepted_name: str, excepted_type: Callable[[Any], T],
