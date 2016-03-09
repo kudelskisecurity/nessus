@@ -53,11 +53,12 @@ class NessusScan(Object):
      - `status` which can be 'empty' but should be one of NessusScanStatus
     """
 
-    def __init__(self, id: int, uuid: str, name: str, type: NessusScanType, owner: str, enabled: bool, folder_id: int,
+    def __init__(self, scan_id: int, uuid: str, name: str, type: NessusScanType, owner: str, enabled: bool,
+                 folder_id: int,
                  read: bool, status: NessusScanStatus, shared: bool, user_permissions: int, creation_date: int,
                  last_modification_date: int, control: bool, starttime: str, timezone: str, rrules: str,
                  use_dashboard: bool) -> None:
-        self.id = id
+        self.id = scan_id
         self.uuid = uuid
         self.name = name
         self.type = type
@@ -84,10 +85,10 @@ class NessusScan(Object):
 
     @staticmethod
     def from_json(json_dict: Mapping[str, Union[int, str, bool]]) -> 'NessusScan':
-        id = int(json_dict['id'])
+        scan_id = int(json_dict['id'])
         uuid = str(json_dict['uuid'])
         name = str(json_dict['name'])
-        type = lying_type(json_dict['type'], NessusScanType, lambda x: x)  # it's None actually
+        scan_type = lying_type(json_dict['type'], NessusScanType)
         owner = str(json_dict['owner'])
         enabled = bool(json_dict['enabled'])
         folder_id = int(json_dict['folder_id'])
@@ -103,7 +104,8 @@ class NessusScan(Object):
         rrules = str(json_dict['rrules'])
         use_dashboard = lying_exist(json_dict, 'use_dashboard', bool)
 
-        return NessusScan(id, uuid, name, type, owner, enabled, folder_id, read, status, shared, user_permissions,
+        return NessusScan(scan_id, uuid, name, scan_type, owner, enabled, folder_id, read, status, shared,
+                          user_permissions,
                           creation_date, last_modification_date, control, starttime, timezone, rrules, use_dashboard)
 
 
