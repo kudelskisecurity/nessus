@@ -5,6 +5,12 @@ from nessus import LibNessus
 
 
 class TestBase(TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.data_dir = 'test/data'
+
+
     def setUp(self):
         url = environ['NESSUS_URL']
         api_access_key = environ['NESSUS_ACCESS_KEY']

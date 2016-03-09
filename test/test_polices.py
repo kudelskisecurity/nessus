@@ -1,3 +1,5 @@
+import os
+
 from nessus.editor import NessusTemplateType
 from nessus.file import NessusFile
 from test import TestBase
@@ -12,7 +14,7 @@ class TestPolicies(TestBase):
         self.assertSetEqual(set(new_policies), set(old_policies))
 
     def test_upload(self):
-        local_file = NessusFile('test/data/glibc')
+        local_file = NessusFile(os.path.join(self.data_dir, 'glibc'))
         old_policies = self.nessus.policies.list()
 
         remote_file = self.nessus.file.upload(local_file)
@@ -46,7 +48,7 @@ class TestPolicies(TestBase):
         self.added_policies.add(p)
 
     def test_delete(self):
-        local_file = NessusFile('test/data/glibc')
+        local_file = NessusFile(os.path.join(self.data_dir, 'glibc'))
         old_policies = self.nessus.policies.list()
         remote_file = self.nessus.file.upload(local_file)
         new_policy = self.nessus.policies.import_(remote_file)
