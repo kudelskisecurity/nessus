@@ -52,6 +52,7 @@ class NessusScan(Object):
     nessus is lying with:
      - `type` which is none but should be NessusScanType (str)
      - `status` which can be 'empty' but should be one of NessusScanStatus
+     - `use_dashboard` which do not always exists
     """
 
     def __init__(self, scan_id: int, uuid: str, name: str, type: NessusScanType, owner: str, enabled: bool,
@@ -111,6 +112,11 @@ class NessusScan(Object):
 
 
 class NessusScanCreated(Object):
+    """
+    lies:
+     - `notification_filter_type` does not always exist
+     - `tag_id` does not always exist
+    """
     def __init__(self, creation_date: int, custom_targets: str, default_permisssions: int, description: str,
                  emails: str, scan_id: int, last_modification_date: int, name: str, notification_filter_type: str,
                  notification_filters: str, owner: str, owner_id: int, policy_id: int, enabled: bool, rrules: str,
@@ -243,6 +249,10 @@ class NessusScanDetailsInfo(Object):
 
 
 class NessusScanHost(Object):
+    """
+    lies:
+     - `hostname` can be str
+    """
     def __init__(self, host_id: int, host_index: str, hostname: int, progress: str, critical: int, high: int,
                  medium: int, low: int, info: int, totalchecksconsidered: int, numchecksconsidered: int,
                  scanprogresstotal: int, scanprogresscurrent: int, score: int) -> None:
@@ -316,6 +326,10 @@ class NessusScanRemediation(Object):
 
 
 class NessusScanDetailsRemediations(Object):
+    """
+    lies:
+     - `remediations` can be None
+    """
     def __init__(self, remediations: Iterable[NessusScanRemediation], num_hosts: int, num_cves: int,
                  num_impacted_hosts: int, num_remediated_cves: int) -> None:
         self.remediations = remediations
@@ -380,7 +394,15 @@ class NessusScanHistory(Object):
 
         return NessusScanHistory(history_id, uuid, owner_id, status, creation_date, last_modification_date)
 
+
 class NessusScanFilterControl(Object):
+    """
+    lies:
+     - `readable_regest` is not always there
+     - `regex` is not always there
+     - `options` is not always there
+    """
+
     # FIXME what is the type of `options`?
     def __init__(self, type: str, readable_regest: str, regex: str, options: Iterable) -> None:
         self.type = type
@@ -404,8 +426,10 @@ class NessusScanFilterOperator(Enum):
     match = 'match'
     nmatch = 'nmatch'
 
+
 class NessusScanFilter(Object):
-    def __init__(self, name: str, readable_name: str, operators: Iterable[NessusScanFilterOperator], control: NessusScanFilterControl) -> None:
+    def __init__(self, name: str, readable_name: str, operators: Iterable[NessusScanFilterOperator],
+                 control: NessusScanFilterControl) -> None:
         self.name = name
         self.readable_name = readable_name
         self.operators = operators
@@ -433,6 +457,7 @@ class NessusScanDetails(Object):
      - `vulnerabilities` not always existing
      - `compliance` not always existing
      - `history` is sometimes None
+     - `filters` not always existing
     """
 
     def __init__(self, info: NessusScanDetailsInfo, hosts: Iterable[NessusScanHost],
