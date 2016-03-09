@@ -3,10 +3,10 @@ from enum import Enum
 from typing import Mapping, Union, Iterable
 
 from nessus.base import LibNessusBase
-from nessus.model import lying_exist
+from nessus.model import lying_exist, Object
 
 
-class NessusTemplate:
+class NessusTemplate(Object):
     """
     nessus is lying with:
      - `description` which is not always there
@@ -22,11 +22,6 @@ class NessusTemplate:
         self.subscription_only = subscription_only
         self.is_agent = is_agent
         self.more_info = more_info
-
-    def __repr__(self) -> str:
-        form = 'NessusTemplate({uuid!r}, {name!r}, {title!r}, {description!r}, {cloud_only!r}, ' \
-               '{subscription_only!r}, {is_agent!r}, {more_info!r})'
-        return form.format(**self.__dict__)
 
     def __eq__(self, other):
         return isinstance(other, NessusTemplate) and self.uuid == other.uuid

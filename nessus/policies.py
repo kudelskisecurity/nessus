@@ -9,7 +9,7 @@ from typing import Iterable, Mapping, Union, Tuple
 from nessus.base import LibNessusBase
 from nessus.editor import NessusTemplate
 from nessus.file import NessusRemoteFile
-from nessus.model import lying_exist
+from nessus.model import lying_exist, Object
 
 
 class NessusPolicyVisibility(Enum):
@@ -20,7 +20,7 @@ class NessusPolicyVisibility(Enum):
     shared = 'shared'
 
 
-class NessusPolicy:
+class NessusPolicy(Object):
     """
     nessus is lying with:
      - `visibility` which is not always there and which is an int
@@ -45,12 +45,6 @@ class NessusPolicy:
         self.last_modification_date = last_modification_date
         self.visibility = visibility
         self.no_target = no_target
-
-    def __repr__(self) -> str:
-        form = 'NessusPolicy({id!r}, {template_uuid!r}, {name!r}, {description!r}, {owner_id!r}, {owner!r}, ' \
-               '{shared!r}, {user_permissions!r}, {creation_date!r}, {last_modification_date!r}, {visibility!r}, ' \
-               '{no_target!r})'
-        return form.format(**self.__dict__)
 
     def __eq__(self, other):
         return isinstance(other, NessusPolicy) and self.id == other.id

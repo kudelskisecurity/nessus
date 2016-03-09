@@ -9,7 +9,7 @@ from typing import Iterable, Mapping, Union, Optional
 
 from nessus.base import LibNessusBase
 from nessus.editor import NessusTemplate
-from nessus.model import lying_exist, lying_type
+from nessus.model import lying_exist, lying_type, Object
 from nessus.policies import NessusPolicy
 
 
@@ -46,7 +46,7 @@ class NessusScanStatus(Enum):
     canceled = 'canceled'
 
 
-class NessusScan:
+class NessusScan(Object):
     """
     nessus is lying with:
      - `type` which is none but should be NessusScanType (str)
@@ -75,12 +75,6 @@ class NessusScan:
         self.timezone = timezone
         self.rrules = rrules
         self.use_dashboard = use_dashboard
-
-    def __repr__(self) -> str:
-        form = 'NessusTemplate({id!r}, {uuid!r}, {name!r}, {type!r}, {owner!r}, {enabled!r}, {folder_id!r}, ' \
-               '{read!r}, {status!r}, {shared!r}, {user_permissions!r}, {creation_date!r}, ' \
-               '{last_modification_date!r}, {control!r}, {starttime!r}, {timezone!r}, {rrules!r}, {use_dashboard!r})'
-        return form.format(**self.__dict__)
 
     def __eq__(self, other):
         return isinstance(other, NessusScan) and self.id == other.id
@@ -113,7 +107,7 @@ class NessusScan:
                           creation_date, last_modification_date, control, starttime, timezone, rrules, use_dashboard)
 
 
-class NessusScanCreated:
+class NessusScanCreated(Object):
     def __init__(self, creation_date: int, custom_targets: str, default_permisssions: int, description: str,
                  emails: str, id: int, last_modification_date: int, name: str, notification_filter_type: str,
                  notification_filters: str, owner: str, owner_id: int, policy_id: int, enabled: bool, rrules: str,
@@ -143,14 +137,6 @@ class NessusScanCreated:
         self.user_permissions = user_permissions
         self.uuid = uuid
         self.use_dashboard = use_dashboard
-
-    def __repr__(self) -> str:
-        form = 'NessusScanCreated({creation_date!r}, {custom_targets!r}, {default_permisssions!r}, {description!r}, ' \
-               '{emails!r}, {id!r}, {last_modification_date!r}, {name!r}, {notification_filter_type!r}, ' \
-               '{notification_filters!r}, {owner!r}, {owner_id!r}, {policy_id!r}, {enabled!r}, {rrules!r}, ' \
-               '{scanner_id!r}, {shared!r}, {starttime!r}, {tag_id!r}, {timezone!r}, {type!r}, ' \
-               '{user_permissions!r}, {uuid!r}, {use_dashboard!r})'
-        return form.format(**self.__dict__)
 
     @staticmethod
     def from_json(json_dict: Mapping[str, Union[int, str, bool]]) -> 'NessusScanCreated':
@@ -248,3 +234,6 @@ class LibNessusScans(LibNessusBase):
         url = 'scans/{scan_id}/launch'.format(scan_id=scan.id)
         ans = self._post(url, json={})
         return ans.json()['scan_uuid']
+
+    def details(self, scan: NessusScan) -> NessusScanDetails:
+        pass
