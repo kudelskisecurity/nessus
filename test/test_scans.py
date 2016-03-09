@@ -3,7 +3,7 @@ from time import sleep
 from typing import Optional
 
 from nessus.editor import NessusTemplateType, NessusTemplate
-from nessus.error import NessusError
+from nessus.error import NessusNetworkError
 from nessus.scans import NessusScanStatus, NessusScan
 from test import TestBase
 
@@ -57,7 +57,7 @@ class TestScans(TestBase):
     def test_create_empty_name(self):
         policy = self.__get_policy()
 
-        self.assertRaises(NessusError, self.nessus.scans.create, policy, name='')
+        self.assertRaises(NessusNetworkError, self.nessus.scans.create, policy, name='')
 
     def test_create_multi_targets(self):
         old_scans = self.__get_scans_id()

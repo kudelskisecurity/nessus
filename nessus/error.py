@@ -3,11 +3,12 @@ error generated from nessus, everything derive from NessusError
 """
 import requests
 
-
 class NessusError(Exception):
     """
     generic error from nessus
     """
+
+class NessusNetworkError(NessusError):
 
     def __init__(self, response: requests.Response) -> None:
         """
@@ -19,14 +20,14 @@ class NessusError(Exception):
         self.response = response
 
 
-class NessusInternalServerError(NessusError):
+class NessusInternalServerError(NessusNetworkError):
     """
     internal server error
     """
     pass
 
 
-class NessusPolicyInUseError(NessusError):
+class NessusPolicyInUseError(NessusNetworkError):
     """
     policy in use (usually when wanting to delete it)
     """
@@ -37,7 +38,7 @@ class NessusPolicyInUseError(NessusError):
         self.policy_id = policy_id
 
 
-class NessusDuplicateFilenameLimitError(NessusError):
+class NessusDuplicateFilenameLimitError(NessusNetworkError):
     """
     if you upload to much file with the same filename, it will fail
     """
