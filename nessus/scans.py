@@ -425,6 +425,10 @@ class NessusScanFilterOperator(Enum):
     neq = 'neq'
     match = 'match'
     nmatch = 'nmatch'
+    date_eq = 'date-eq'
+    date_neq = 'date-neq'
+    date_lt = 'date-lt'
+    date_gt = 'date-gt'
 
 
 class NessusScanFilter(Object):
