@@ -70,7 +70,7 @@ class NessusPolicy(Object):
         user_permissions = int(json_dict['user_permissions'])
         creation_date = int(json_dict['creation_date'])
         last_modification_date = int(json_dict['last_modification_date'])
-        visibility = lying_exist(json_dict, 'visibility', NessusPolicyVisibility)
+        visibility = lying_exist(json_dict, 'visibility', NessusPolicyVisibility, None)
         no_target = bool(json_dict['no_target'])
 
         return NessusPolicy(policy_id, template_uuid, name, description, owner_id, owner, shared, user_permissions,

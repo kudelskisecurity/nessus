@@ -93,3 +93,11 @@ class TestScans(TestBase):
         scanned = self.__get_scan_by_uuid(launched_scan_uuid)
 
         self.assertEqual(scanned.id, scan.id)
+
+    def test_details(self):
+        policy = self.__get_policy()
+
+        scan = self.nessus.scans.create(policy)
+        self.added_scans.add(scan)
+
+        self.nessus.scans.details(scan)
