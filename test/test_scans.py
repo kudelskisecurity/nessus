@@ -91,6 +91,5 @@ class TestScans(TestBase):
 
         self.__wait_scan_completion(launched_scan_uuid)
         scanned = self.__get_scan_by_uuid(launched_scan_uuid)
-        self.added_scans.add(scanned)
 
         self.assertEqual(scanned.id, scan.id)
