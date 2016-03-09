@@ -12,7 +12,7 @@ class TestScans(TestBase):
     def test_list(self):
         self.nessus.scans.list()
 
-    def __get_template(self, name: str = 'basic'):
+    def __get_template(self, name: str = 'discovery'):
         templates = self.nessus.editor.list(NessusTemplateType.scan)
         return next(t for t in templates if t.name == name)
 

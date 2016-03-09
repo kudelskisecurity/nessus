@@ -26,7 +26,7 @@ class TestPolicies(TestBase):
     def test_create(self):
         old_policies = {p.id for p in self.nessus.policies.list()}
         templates = self.nessus.editor.list(NessusTemplateType.policy)
-        template = next(t for t in templates if t.name == 'basic')
+        template = next(t for t in templates if t.name == 'discovery')
 
         policy_id, policy_name = self.nessus.policies.create(template)
         self.__add_policy_id_to_remove(policy_id)
