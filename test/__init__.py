@@ -15,8 +15,10 @@ class TestBase(TestCase):
         url = environ['NESSUS_URL']
         api_access_key = environ['NESSUS_ACCESS_KEY']
         api_secret_key = environ['NESSUS_SECRET_KEY']
-
         self.nessus = LibNessus(url=url, api_access_key=api_access_key, api_secret_key=api_secret_key)
+
+        # we have it as list to always take the same single target
+        self.targets = list(environ['NESSUS_TARGETS'].split('|'))
 
         self.added_policies = set()
         self.added_policies_id = set()

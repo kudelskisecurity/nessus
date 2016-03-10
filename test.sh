@@ -6,7 +6,7 @@ set -eu
 : ${LOCAL_NESSUS_IP:='localhost'}
 : ${LOCAL_NESSUS_PORT:='8835'}
 
-export NESSUS_URL='https://localhost:8835'
+export NESSUS_URL="https://${LOCAL_NESSUS_IP}:${LOCAL_NESSUS_PORT}"
 
 bind_remote() {
         local remote_ip="${1}"

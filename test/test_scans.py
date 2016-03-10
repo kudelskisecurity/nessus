@@ -32,7 +32,7 @@ class TestScans(TestBase):
         old_scans = self.__get_scans_id()
         policy = self.__get_policy()
 
-        created = self.nessus.scans.create(policy)
+        created = self.nessus.scans.create(policy, default_targets=self.targets)
         self.added_scans.add(created)
 
         self.assertEqual(created.policy_id, policy.id)
@@ -47,7 +47,7 @@ class TestScans(TestBase):
         template_other = self.__get_template('drown')
         policy = self.__get_policy(template_policy)
 
-        created = self.nessus.scans.create(policy, template=template_other)
+        created = self.nessus.scans.create(policy, template=template_other, default_targets=self.targets)
         self.added_scans.add(created)
 
         new_scans = self.__get_scans_id()
@@ -59,11 +59,11 @@ class TestScans(TestBase):
 
         self.assertRaises(NessusNetworkError, self.nessus.scans.create, policy, name='')
 
-    def test_create_multi_targets(self):
+    def test_create_single_target(self):
         old_scans = self.__get_scans_id()
         policy = self.__get_policy()
 
-        created = self.nessus.scans.create(policy, default_targets=['localhost', '127.0.0.1', '::1'])
+        created = self.nessus.scans.create(policy, default_targets=[self.targets[0]])
         self.added_scans.add(created)
 
         new_scans = self.__get_scans_id()
@@ -85,7 +85,7 @@ class TestScans(TestBase):
     def test_launch(self):
         policy = self.__get_policy()
 
-        scan = self.nessus.scans.create(policy)
+        scan = self.nessus.scans.create(policy, default_targets=self.targets)
         self.added_scans.add(scan)
         launched_scan_uuid = self.nessus.scans.launch(scan)
 
@@ -97,7 +97,7 @@ class TestScans(TestBase):
     def test_details(self):
         policy = self.__get_policy()
 
-        scan = self.nessus.scans.create(policy)
+        scan = self.nessus.scans.create(policy, default_targets=self.targets)
         self.added_scans.add(scan)
 
         self.nessus.scans.details(scan)
