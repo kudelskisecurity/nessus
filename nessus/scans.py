@@ -507,7 +507,7 @@ class LibNessusScans(LibNessusBase):
     """
 
     # pylint: disable=bad-whitespace
-    def create(self, policy: NessusPolicy, name: str = str(uuid4()), template: Optional[NessusTemplate] = None,
+    def create(self, policy: NessusPolicy, name: Optional[str] = None, template: Optional[NessusTemplate] = None,
                default_targets: Iterable[str] = ('localhost',)) -> NessusScanCreated:
         """
         Creates a scan.
@@ -517,6 +517,8 @@ class LibNessusScans(LibNessusBase):
         :param default_targets: need to have at least an element
         :return: created scan
         """
+        if name is None:
+            name = str(uuid4())
 
         if template is None:
             template_uuid = policy.template_uuid

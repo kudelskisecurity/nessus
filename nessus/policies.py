@@ -4,7 +4,7 @@ sub modules for everything about the policies
 from enum import Enum
 from uuid import uuid4
 
-from typing import Iterable, Mapping, Union, Tuple
+from typing import Iterable, Mapping, Union, Tuple, Optional
 
 from nessus.base import LibNessusBase
 from nessus.editor import NessusTemplate
@@ -99,13 +99,16 @@ class LibNessusPolicies(LibNessusBase):
         self._delete(url)
 
     # pylint: disable=bad-whitespace
-    def create(self, template: NessusTemplate, name: str = str(uuid4())) -> Tuple[int, str]:
+    def create(self, template: NessusTemplate, name: Optional[str] = None) -> Tuple[int, str]:
         """
         Creates a policy.
         :param template: what to create
         :param name: name of the policy
         :return: (policy_id, policy_name)
         """
+        if name is None:
+            name = str(uuid4())
+
         json = {
             'uuid': template.uuid,
             'settings': {

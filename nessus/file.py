@@ -17,7 +17,7 @@ class LibNessusFile(LibNessusBase):
     def upload(self, nessus_file: NessusFile) -> NessusRemoteFile:
         """
         Uploads a file.
-        the data field name 'Filedata' is not documented in Nessus
+        ~lies: the data field name 'Filedata' is not documented in Nessus
         :param nessus_file: file to upload
         :return: the filename on nessus
         """
