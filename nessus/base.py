@@ -4,7 +4,7 @@ import requests
 from typing import Optional, Mapping, IO, Tuple, Any
 
 from nessus.error import NessusInternalServerError, NessusNetworkError, NessusPolicyInUseError, \
-    NessusDuplicateFilenameLimitError, NessusScanIsActiveError
+    NessusDuplicateFilenameLimitError, NessusScanIsActiveError, NessusWeirdNetworkError
 
 
 class LibNessusBase:
@@ -98,7 +98,7 @@ class LibNessusBase:
             return
 
         if (not response.text.startswith('{')) or ('error' not in response.json()):
-            raise NessusNetworkError(response=response)
+            raise NessusWeirdNetworkError(response=response)
 
         error_str = response.json()['error']
 

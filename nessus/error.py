@@ -21,6 +21,16 @@ class NessusNetworkError(NessusError):
         self.response = response
 
 
+class NessusWeirdNetworkError(NessusError):
+    """
+    as NessusNetworkError but without an 'error' field
+    """
+
+    def __init__(self, response: requests.Response):
+        super().__init__(response.text)
+        self.response = response
+
+
 class NessusInternalServerError(NessusNetworkError):
     """
     internal server error
