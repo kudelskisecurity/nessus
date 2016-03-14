@@ -1,4 +1,4 @@
-libnessus
+nessus
 =========
 
 Based on the Nessus REST API.
@@ -8,7 +8,7 @@ make one one day), every call that you make using the NessusLib object will
 send a single request to Nessus.
 
 If you are used to read the Nessus API, you will find it quite easy to use,
-python objects map to resources (or subset of resources), libnessus calls map to
+python objects map to resources (or subset of resources), nessus calls map to
 REST API.
 
 ## install
