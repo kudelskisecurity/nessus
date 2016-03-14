@@ -29,6 +29,7 @@ class NessusScanStatus(Enum):
     lies:
      - `empty` was added because sometimes, nessus return it (but it is not documented)
      - `canceled` is returned instead of `cancelled`
+     - `processing` was added because sometimes, nessus return it (but it is not documented)
     """
     completed = 'completed'
     aborted = 'aborted'
@@ -45,6 +46,7 @@ class NessusScanStatus(Enum):
 
     empty = 'empty'
     canceled = 'canceled'
+    processing = 'processing'
 
 
 class NessusScan(Object):
