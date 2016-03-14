@@ -3,13 +3,14 @@ error generated from nessus, everything derive from NessusError
 """
 import requests
 
+
 class NessusError(Exception):
     """
     generic error from nessus
     """
 
-class NessusNetworkError(NessusError):
 
+class NessusNetworkError(NessusError):
     def __init__(self, response: requests.Response) -> None:
         """
         wrap some useful information
@@ -23,6 +24,13 @@ class NessusNetworkError(NessusError):
 class NessusInternalServerError(NessusNetworkError):
     """
     internal server error
+    """
+    pass
+
+
+class NessusScanIsActiveError(NessusNetworkError):
+    """
+    scan is active (usually when wanting to delete it)
     """
     pass
 

@@ -4,7 +4,7 @@ import requests
 from typing import Optional, Mapping, IO, Tuple, Any
 
 from nessus.error import NessusInternalServerError, NessusNetworkError, NessusPolicyInUseError, \
-    NessusDuplicateFilenameLimitError
+    NessusDuplicateFilenameLimitError, NessusScanIsActiveError
 
 
 class LibNessusBase:
@@ -104,6 +104,8 @@ class LibNessusBase:
 
         if error_str == 'An internal server error occurred':
             raise NessusInternalServerError(response=response)
+        elif error_str == 'Can not delete an active scan':
+            raise NessusScanIsActiveError(response=response)
 
         regex = {
             'Policy "([^"]+)" \(ID (\d+)\) cannot be deleted since it is currently used by one or more scans.':
