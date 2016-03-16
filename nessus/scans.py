@@ -606,6 +606,128 @@ class NessusScanHostDetails(Object):
         return NessusScanHostDetails(info, compliance, vulnerabilities)
 
 
+class NessusScanPluginOutputInfoDescriptionAttributesRiskInformation(Object):
+    def __init__(self, risk_factor: str) -> None:
+        self.risk_factor = risk_factor
+
+    @staticmethod
+    def from_json(json_dict: Mapping[str, Union[int, str, bool]]) \
+            -> 'NessusScanPluginOutputInfoDescriptionAttributesRiskInformation':
+        risk_factor = str(json_dict['risk_factor'])
+
+        return NessusScanPluginOutputInfoDescriptionAttributesRiskInformation(risk_factor)
+
+
+class NessusScanPluginOutputInfoDescriptionAttributesPluginInformation(Object):
+    def __init__(self, plugin_id: int, plugin_type: str, plugin_family: str, plugin_modification_date: str) -> None:
+        self.plugin_id = plugin_id
+        self.plugin_type = plugin_type
+        self.plugin_family = plugin_family
+        self.plugin_modification_date = plugin_modification_date
+
+    @staticmethod
+    def from_json(json_dict: Mapping[str, Union[int, str, bool]]) \
+            -> 'NessusScanPluginOutputInfoDescriptionAttributesPluginInformation':
+        plugin_id = int(json_dict['plugin_id'])
+        plugin_type = str(json_dict['plugin_type'])
+        plugin_family = str(json_dict['plugin_family'])
+        plugin_modification_date = str(json_dict['plugin_modification_date'])
+
+        return NessusScanPluginOutputInfoDescriptionAttributesPluginInformation(plugin_id, plugin_type, plugin_family,
+                                                                                plugin_modification_date)
+
+
+class NessusScanPluginOutputInfoDescriptionAttributes(Object):
+    def __init__(self, risk_information: NessusScanPluginOutputInfoDescriptionAttributesRiskInformation,
+                 plugin_name: str, plugin_information: NessusScanPluginOutputInfoDescriptionAttributesPluginInformation,
+                 solution: str, fname: str, synopsis: str, description: str) -> None:
+        self.risk_information = risk_information
+        self.plugin_name = plugin_name
+        self.plugin_information = plugin_information
+        self.solution = solution
+        self.fname = fname
+        self.synopsis = synopsis
+        self.description = description
+
+    @staticmethod
+    def from_json(json_dict: Mapping[str, Union[int, str, bool]]) -> 'NessusScanPluginOutputInfoDescriptionAttributes':
+        risk_information = \
+            NessusScanPluginOutputInfoDescriptionAttributesRiskInformation.from_json(json_dict['risk_information'])
+        plugin_name = str(json_dict['plugin_name'])
+        plugin_information = \
+            NessusScanPluginOutputInfoDescriptionAttributesPluginInformation.from_json(json_dict['plugin_information'])
+        solution = str(json_dict['solution'])
+        fname = str(json_dict['fname'])
+        synopsis = str(json_dict['synopsis'])
+        description = str(json_dict['description'])
+
+        return NessusScanPluginOutputInfoDescriptionAttributes(risk_information, plugin_name, plugin_information,
+                                                               solution, fname, synopsis, description)
+
+
+class NessusScanPluginOutputInfoDescription(Object):
+    def __init__(self, severity: int, pluginname: str,
+                 pluginattributes: NessusScanPluginOutputInfoDescriptionAttributes, pluginfamily: str,
+                 pluginid: int) -> None:
+        self.severity = severity
+        self.pluginname = pluginname
+        self.pluginattributes = pluginattributes
+        self.pluginfamily = pluginfamily
+        self.pluginid = pluginid
+
+    @staticmethod
+    def from_json(json_dict: Mapping[str, Union[int, str, bool]]) -> 'NessusScanPluginOutputInfoDescription':
+        severity = int(json_dict['severity'])
+        pluginname = str(json_dict['pluginname'])
+        pluginattributes = NessusScanPluginOutputInfoDescriptionAttributes.from_json(json_dict['pluginattributes'])
+        pluginfamily = str(json_dict['pluginfamily'])
+        pluginid = int(json_dict['pluginid'])
+
+        return NessusScanPluginOutputInfoDescription(severity, pluginname, pluginattributes, pluginfamily, pluginid)
+
+
+class NessusScanPluginOutput(Object):
+    def __init__(self, plugin_output: str, hosts: str, severity: int, ports) -> None:
+        self.plugin_output = plugin_output
+        self.hosts = hosts
+        self.severity = severity
+        self.ports = ports
+
+    @staticmethod
+    def from_json(json_dict: Mapping[str, Union[int, str, bool]]) -> 'NessusScanPluginOutput':
+        plugin_output = str(json_dict['plugin_output'])
+        hosts = str(json_dict['hosts'])
+        severity = int(json_dict['severity'])
+        ports = (json_dict['ports'])
+        print(ports)
+
+        return NessusScanPluginOutput(plugin_output, hosts, severity, ports)
+
+
+class NessusScanPluginOutputInfo(Object):
+    def __init__(self, plugindescription: NessusScanPluginOutputInfoDescription) -> None:
+        self.plugindescription = plugindescription
+
+    @staticmethod
+    def from_json(json_dict: Mapping[str, Union[int, str, bool]]) -> 'NessusScanPluginOutputInfo':
+        plugindescription = NessusScanPluginOutputInfoDescription.from_json(json_dict['plugindescription'])
+
+        return NessusScanPluginOutputInfo(plugindescription)
+
+
+class NessusScanPluginOutputDetails(Object):
+    def __init__(self, info: NessusScanPluginOutputInfo, output: Iterable[NessusScanPluginOutput]) -> None:
+        self.info = info
+        self.output = output
+
+    @staticmethod
+    def from_json(json_dict: Mapping[str, Union[int, str, bool]]) -> 'NessusScanPluginOutputDetails':
+        info = NessusScanPluginOutputInfo.from_json(json_dict['info'])
+        output = {NessusScanPluginOutput.from_json(output) for output in json_dict['output']}
+
+        return NessusScanPluginOutputDetails(info, output)
+
+
 class LibNessusScans(LibNessusBase):
     """
     module handling /scans
@@ -682,3 +804,9 @@ class LibNessusScans(LibNessusBase):
         url = 'scans/{scan_id}/hosts/{host_id}'.format(scan_id=scan.id, host_id=host.host_id)
         ans = self._get(url)
         return NessusScanHostDetails.from_json(ans.json())
+
+    def plugin_output(self, scan: NessusScan, host: NessusScanHost, plugin_id: int) -> NessusScanPluginOutputDetails:
+        url = 'scans/{scan_id}/hosts/{host_id}/plugins/{plugin_id}'.format(scan_id=scan.id, host_id=host.host_id,
+                                                                           plugin_id=plugin_id)
+        ans = self._get(url)
+        return NessusScanPluginOutput.from_json(ans.json())

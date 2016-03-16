@@ -113,3 +113,17 @@ class TestScans(TestBase):
         host = next(x for x in details.hosts)
 
         self.nessus.scans.host_details(scan=scan, host=host)
+
+    def test_host_plugin_output_after_completion(self):
+        template = self.__get_template('basic')
+        policy = self.__get_policy(template)
+        scan = self.nessus.scans.create(policy, default_targets=self.targets)
+        self.added_scans.add(scan)
+        launched_scan_uuid = self.nessus.scans.launch(scan)
+        self.__wait_scan_completion(launched_scan_uuid)
+        details = self.nessus.scans.details(scan)
+        host = next(x for x in details.hosts)
+        host_details = self.nessus.scans.host_details(scan=scan, host=host)
+        vulnerability = next(x for x in host_details.vulnerabilities)
+
+        self.nessus.scans.plugin_output(scan=scan, host=host, plugin_id=vulnerability.plugin_id)
