@@ -75,6 +75,14 @@ def lying_exist_and_type(json_dict: Mapping[str, JsonType], excepted_name: str, 
         return default
 
 
+
+def allow_to_exist(json_dict: Mapping[str, JsonType], excepted_name: str, excepted_type: Callable[[Any], T]) -> U:
+    if excepted_name in json_dict:
+        return excepted_type(json_dict[excepted_name])
+    else:
+        return None
+
+
 def lying_exist(json_dict: Mapping[str, JsonType], excepted_name: str, excepted_type: Callable[[Any], T],
                 default: U = ...) -> Union[T, U]:
     """

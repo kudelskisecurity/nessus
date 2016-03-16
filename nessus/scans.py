@@ -9,7 +9,7 @@ from typing import Iterable, Mapping, Union, Optional
 
 from nessus.base import LibNessusBase
 from nessus.editor import NessusTemplate
-from nessus.model import lying_exist, lying_type, Object, lying_exist_and_type
+from nessus.model import lying_exist, lying_type, Object, lying_exist_and_type, allow_to_exist
 from nessus.permissions import NessusPermission
 from nessus.policies import NessusPolicy
 
@@ -607,15 +607,34 @@ class NessusScanHostDetails(Object):
 
 
 class NessusScanPluginOutputInfoDescriptionAttributesRiskInformation(Object):
-    def __init__(self, risk_factor: str) -> None:
+    """
+    lies:
+     - there is more than simply risk_factor
+      - `cvss_score`: str (but could be float, we use that)
+      - `cvss_vector`: str
+      - `cvss_temporal_score`: str (but could be float, we use that)
+      - `cvss_temporal_vector`: str
+    """
+
+    def __init__(self, risk_factor: str, cvss_score: Optional[float], cvss_vector: Optional[str],
+                 cvss_temporal_score: Optional[float], cvss_temporal_vector: Optional[str]) -> None:
         self.risk_factor = risk_factor
+        self.cvss_score = cvss_score
+        self.cvss_vector = cvss_vector
+        self.cvss_temporal_score = cvss_temporal_score
+        self.cvss_temporal_vector = cvss_temporal_vector
 
     @staticmethod
     def from_json(json_dict: Mapping[str, Union[int, str, bool]]) \
             -> 'NessusScanPluginOutputInfoDescriptionAttributesRiskInformation':
         risk_factor = str(json_dict['risk_factor'])
+        cvss_score = allow_to_exist(json_dict, 'cvss_score', float)
+        cvss_vector = allow_to_exist(json_dict, 'cvss_vector', str)
+        cvss_temporal_score = allow_to_exist(json_dict, 'cvss_temporal_score', float)
+        cvss_temporal_vector = allow_to_exist(json_dict, 'cvss_temporal_vector', str)
 
-        return NessusScanPluginOutputInfoDescriptionAttributesRiskInformation(risk_factor)
+        return NessusScanPluginOutputInfoDescriptionAttributesRiskInformation(risk_factor, cvss_score, cvss_vector,
+                                                                              cvss_temporal_score, cvss_temporal_vector)
 
 
 class NessusScanPluginOutputInfoDescriptionAttributesPluginInformation(Object):
