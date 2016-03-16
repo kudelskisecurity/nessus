@@ -119,6 +119,7 @@ class NessusScanCreated(Object):
      - `notification_filter_type` does not always exist
      - `tag_id` does not always exist
     """
+
     def __init__(self, creation_date: int, custom_targets: str, default_permisssions: int, description: str,
                  emails: str, scan_id: int, last_modification_date: int, name: str, notification_filter_type: str,
                  notification_filters: str, owner: str, owner_id: int, policy_id: int, enabled: bool, rrules: str,
@@ -255,6 +256,7 @@ class NessusScanHost(Object):
     lies:
      - `hostname` can be str
     """
+
     def __init__(self, host_id: int, host_index: str, hostname: int, progress: str, critical: int, high: int,
                  medium: int, low: int, info: int, totalchecksconsidered: int, numchecksconsidered: int,
                  scanprogresstotal: int, scanprogresscurrent: int, score: int) -> None:
@@ -332,6 +334,7 @@ class NessusScanDetailsRemediations(Object):
     lies:
      - `remediations` can be None
     """
+
     def __init__(self, remediations: Iterable[NessusScanRemediation], num_hosts: int, num_cves: int,
                  num_impacted_hosts: int, num_remediated_cves: int) -> None:
         self.remediations = remediations
@@ -503,6 +506,106 @@ class NessusScanDetails(Object):
                                  filters)
 
 
+class NessusScanHostDetailsInfo(Object):
+    """
+    lies:
+     - `host-fqdn` not always existing
+    """
+
+    def __init__(self, host_start: str, mac_address: str, host_fqdn: str, host_end: str, operating_system: str,
+                 host_ip: str) -> None:
+        self.host_start = host_start
+        self.mac_address = mac_address
+        self.host_fqdn = host_fqdn
+        self.host_end = host_end
+        self.operating_system = operating_system
+        self.host_ip = host_ip
+
+    @staticmethod
+    def from_json(json_dict: Mapping[str, Union[int, str, bool]]) -> 'NessusScanHostDetailsInfo':
+        host_start = str(json_dict['host_start'])
+        mac_address = str(json_dict['mac-address'])
+        host_fqdn = lying_exist(json_dict, 'host-fqdn', str)
+        host_end = str(json_dict['host_end'])
+        operating_system = str(json_dict['operating-system'])
+        host_ip = str(json_dict['host-ip'])
+
+        return NessusScanHostDetailsInfo(host_start, mac_address, host_fqdn, host_end, operating_system, host_ip)
+
+
+class NessusScanHostCompliance(Object):
+    def __init__(self, host_id: int, hostname: str, plugin_id: int, plugin_name: str, plugin_family: str, count: int,
+                 severity_index: int, severity: int) -> None:
+        self.host_id = host_id
+        self.hostname = hostname
+        self.plugin_id = plugin_id
+        self.plugin_name = plugin_name
+        self.plugin_family = plugin_family
+        self.count = count
+        self.severity_index = severity_index
+        self.severity = severity
+
+    @staticmethod
+    def from_json(json_dict: Mapping[str, Union[int, str, bool]]) -> 'NessusScanHostCompliance':
+        host_id = int(json_dict['host_id'])
+        hostname = str(json_dict['hostname'])
+        plugin_id = int(json_dict['plugin_id'])
+        plugin_name = str(json_dict['plugin_name'])
+        plugin_family = str(json_dict['plugin_family'])
+        count = int(json_dict['count'])
+        severity_index = int(json_dict['severity_index'])
+        severity = int(json_dict['severity'])
+
+        return NessusScanHostCompliance(host_id, hostname, plugin_id, plugin_name, plugin_family, count, severity_index,
+                                        severity)
+
+
+class NessusScanHostVulnerability(Object):
+    def __init__(self, host_id: int, hostname: str, plugin_id: int, plugin_name: str, plugin_family: str, count: int,
+                 vuln_index: int, severity_index: int, severity: int) -> None:
+        self.host_id = host_id
+        self.hostname = hostname
+        self.plugin_id = plugin_id
+        self.plugin_name = plugin_name
+        self.plugin_family = plugin_family
+        self.count = count
+        self.vuln_index = vuln_index
+        self.severity_index = severity_index
+        self.severity = severity
+
+    @staticmethod
+    def from_json(json_dict: Mapping[str, Union[int, str, bool]]) -> 'NessusScanHostVulnerability':
+        host_id = int(json_dict['host_id'])
+        hostname = str(json_dict['hostname'])
+        plugin_id = int(json_dict['plugin_id'])
+        plugin_name = str(json_dict['plugin_name'])
+        plugin_family = str(json_dict['plugin_family'])
+        count = int(json_dict['count'])
+        vuln_index = int(json_dict['vuln_index'])
+        severity_index = int(json_dict['severity_index'])
+        severity = int(json_dict['severity'])
+
+        return NessusScanHostVulnerability(host_id, hostname, plugin_id, plugin_name, plugin_family, count, vuln_index,
+                                           severity_index, severity)
+
+
+class NessusScanHostDetails(Object):
+    def __init__(self, info: NessusScanHostDetailsInfo, compliance: Iterable[NessusScanHostCompliance],
+                 vulnerabilities: Iterable[NessusScanHostVulnerability]) -> None:
+        self.info = info
+        self.compliance = compliance
+        self.vulnerabilities = vulnerabilities
+
+    @staticmethod
+    def from_json(json_dict: Mapping[str, Union[int, str, bool]]) -> 'NessusScanHostDetails':
+        info = NessusScanHostDetailsInfo.from_json(json_dict['info'])
+        compliance = {NessusScanHostCompliance.from_json(compliance) for compliance in json_dict['compliance']}
+        vulnerabilities = {NessusScanHostVulnerability.from_json(vulnerability) for vulnerability in
+                           json_dict['vulnerabilities']}
+
+        return NessusScanHostDetails(info, compliance, vulnerabilities)
+
+
 class LibNessusScans(LibNessusBase):
     """
     module handling /scans
@@ -574,3 +677,8 @@ class LibNessusScans(LibNessusBase):
         url = 'scans/{scan_id}'.format(scan_id=scan.id)
         ans = self._get(url)
         return NessusScanDetails.from_json(ans.json())
+
+    def host_details(self, scan: NessusScan, host: NessusScanHost) -> NessusScanHostDetails:
+        url = 'scans/{scan_id}/hosts/{host_id}'.format(scan_id=scan.id, host_id=host.host_id)
+        ans = self._get(url)
+        return NessusScanHostDetails.from_json(ans.json())
