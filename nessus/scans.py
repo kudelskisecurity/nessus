@@ -509,6 +509,7 @@ class NessusScanDetails(Object):
 class NessusScanHostDetailsInfo(Object):
     """
     lies:
+     - `mac-address` not always existing
      - `host-fqdn` not always existing
     """
 
@@ -524,10 +525,10 @@ class NessusScanHostDetailsInfo(Object):
     @staticmethod
     def from_json(json_dict: Mapping[str, Union[int, str, bool]]) -> 'NessusScanHostDetailsInfo':
         host_start = str(json_dict['host_start'])
-        mac_address = str(json_dict['mac-address'])
+        mac_address = lying_exist(json_dict, 'mac-address', str)
         host_fqdn = lying_exist(json_dict, 'host-fqdn', str)
         host_end = str(json_dict['host_end'])
-        operating_system = str(json_dict['operating-system'])
+        operating_system = lying_exist(json_dict, 'operating-system', str)
         host_ip = str(json_dict['host-ip'])
 
         return NessusScanHostDetailsInfo(host_start, mac_address, host_fqdn, host_end, operating_system, host_ip)
@@ -610,15 +611,18 @@ class NessusScanPluginOutputInfoDescriptionAttributesRiskInformation(Object):
     """
     lies:
      - there is more than simply risk_factor
+      - `cvss_base_score`: str (but could be float, we use that)
       - `cvss_score`: str (but could be float, we use that)
       - `cvss_vector`: str
       - `cvss_temporal_score`: str (but could be float, we use that)
       - `cvss_temporal_vector`: str
     """
 
-    def __init__(self, risk_factor: str, cvss_score: Optional[float], cvss_vector: Optional[str],
-                 cvss_temporal_score: Optional[float], cvss_temporal_vector: Optional[str]) -> None:
+    def __init__(self, risk_factor: str, cvss_base_score: Optional[float], cvss_score: Optional[float],
+                 cvss_vector: Optional[str], cvss_temporal_score: Optional[float],
+                 cvss_temporal_vector: Optional[str]) -> None:
         self.risk_factor = risk_factor
+        self.cvss_base_score = cvss_base_score
         self.cvss_score = cvss_score
         self.cvss_vector = cvss_vector
         self.cvss_temporal_score = cvss_temporal_score
@@ -628,13 +632,14 @@ class NessusScanPluginOutputInfoDescriptionAttributesRiskInformation(Object):
     def from_json(json_dict: Mapping[str, Union[int, str, bool]]) \
             -> 'NessusScanPluginOutputInfoDescriptionAttributesRiskInformation':
         risk_factor = str(json_dict['risk_factor'])
+        cvss_base_score = allow_to_exist(json_dict, 'cvss_base_score', float)
         cvss_score = allow_to_exist(json_dict, 'cvss_score', float)
         cvss_vector = allow_to_exist(json_dict, 'cvss_vector', str)
         cvss_temporal_score = allow_to_exist(json_dict, 'cvss_temporal_score', float)
         cvss_temporal_vector = allow_to_exist(json_dict, 'cvss_temporal_vector', str)
 
-        return NessusScanPluginOutputInfoDescriptionAttributesRiskInformation(risk_factor, cvss_score, cvss_vector,
-                                                                              cvss_temporal_score, cvss_temporal_vector)
+        args = [risk_factor, cvss_base_score, cvss_score, cvss_vector, cvss_temporal_score, cvss_temporal_vector]
+        return NessusScanPluginOutputInfoDescriptionAttributesRiskInformation(*args)
 
 
 class NessusScanPluginOutputInfoDescriptionAttributesPluginInformation(Object):
@@ -742,7 +747,7 @@ class NessusScanPluginOutputDetails(Object):
     @staticmethod
     def from_json(json_dict: Mapping[str, Union[int, str, bool]]) -> 'NessusScanPluginOutputDetails':
         info = NessusScanPluginOutputInfo.from_json(json_dict['info'])
-        output = {NessusScanPluginOutput.from_json(output) for output in json_dict['output']}
+        output = {NessusScanPluginOutput.from_json(output) for output in lying_exist(json_dict, 'output', set, {})}
 
         return NessusScanPluginOutputDetails(info, output)
 
