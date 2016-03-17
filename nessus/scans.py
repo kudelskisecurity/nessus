@@ -828,4 +828,4 @@ class LibNessusScans(LibNessusBase):
         url = 'scans/{scan_id}/hosts/{host_id}/plugins/{plugin_id}'.format(scan_id=scan.id, host_id=host.host_id,
                                                                            plugin_id=plugin_id)
         ans = self._get(url)
-        return NessusScanPluginOutput.from_json(ans.json())
+        return NessusScanPluginOutputDetails.from_json(ans.json())
