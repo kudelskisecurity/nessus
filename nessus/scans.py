@@ -661,10 +661,58 @@ class NessusScanPluginOutputInfoDescriptionAttributesPluginInformation(Object):
                                                                                 plugin_modification_date)
 
 
+class NessusScanPluginOutputInfoDescriptionAttributesRefInformationRefValues(Object):
+    def __init__(self, value: Iterable[str]) -> None:
+        self.value = value  # TODO can be tight by type
+
+    @staticmethod
+    def from_json(json_dict: Mapping[str, Union[int, str, bool]]) \
+            -> 'NessusScanPluginOutputInfoDescriptionAttributesRefInformationRefValues':
+        value = {str(value) for value in json_dict['value']}
+
+        return NessusScanPluginOutputInfoDescriptionAttributesRefInformationRefValues(value)
+
+
+class NessusScanPluginOutputInfoDescriptionAttributesRefInformationRef(Object):
+    def __init__(self, name: str, values: NessusScanPluginOutputInfoDescriptionAttributesRefInformationRefValues,
+                 url: str) -> None:
+        self.name = name
+        self.values = values
+        self.url = url
+
+    @staticmethod
+    def from_json(json_dict: Mapping[str, Union[int, str, bool]]) \
+            -> 'NessusScanPluginOutputInfoDescriptionAttributesRefInformationRef':
+        name = str(json_dict['name'])  # TODO can be tight by enum?
+        values = NessusScanPluginOutputInfoDescriptionAttributesRefInformationRefValues.from_json(json_dict['values'])
+        url = str(json_dict['url'])
+
+        return NessusScanPluginOutputInfoDescriptionAttributesRefInformationRef(name, values, url)
+
+
+class NessusScanPluginOutputInfoDescriptionAttributesRefInformation(Object):
+    def __init__(self, ref: Iterable[NessusScanPluginOutputInfoDescriptionAttributesRefInformationRef]) -> None:
+        self.ref = ref
+
+    @staticmethod
+    def from_json(json_dict: Mapping[str, Union[int, str, bool]]) \
+            -> 'NessusScanPluginOutputInfoDescriptionAttributesRefInformation':
+        ref = {NessusScanPluginOutputInfoDescriptionAttributesRefInformationRef.from_json(ref)
+               for ref in json_dict['ref']}
+
+        return NessusScanPluginOutputInfoDescriptionAttributesRefInformation(ref)
+
+
 class NessusScanPluginOutputInfoDescriptionAttributes(Object):
+    """
+    lies:
+     - `ref_information` is not documented but is present
+    """
+
     def __init__(self, risk_information: NessusScanPluginOutputInfoDescriptionAttributesRiskInformation,
                  plugin_name: str, plugin_information: NessusScanPluginOutputInfoDescriptionAttributesPluginInformation,
-                 solution: str, fname: str, synopsis: str, description: str) -> None:
+                 solution: str, fname: str, synopsis: str, description: str,
+                 ref_information: Optional[NessusScanPluginOutputInfoDescriptionAttributesRefInformation]) -> None:
         self.risk_information = risk_information
         self.plugin_name = plugin_name
         self.plugin_information = plugin_information
@@ -672,6 +720,7 @@ class NessusScanPluginOutputInfoDescriptionAttributes(Object):
         self.fname = fname
         self.synopsis = synopsis
         self.description = description
+        self.ref_information = ref_information
 
     @staticmethod
     def from_json(json_dict: Mapping[str, Union[int, str, bool]]) -> 'NessusScanPluginOutputInfoDescriptionAttributes':
@@ -684,9 +733,11 @@ class NessusScanPluginOutputInfoDescriptionAttributes(Object):
         fname = str(json_dict['fname'])
         synopsis = str(json_dict['synopsis'])
         description = str(json_dict['description'])
+        ref_information = allow_to_exist(json_dict, 'ref_information',
+                                         NessusScanPluginOutputInfoDescriptionAttributesRefInformation.from_json)
 
         return NessusScanPluginOutputInfoDescriptionAttributes(risk_information, plugin_name, plugin_information,
-                                                               solution, fname, synopsis, description)
+                                                               solution, fname, synopsis, description, ref_information)
 
 
 class NessusScanPluginOutputInfoDescription(Object):
