@@ -675,7 +675,7 @@ class NessusScanPluginOutputInfoDescriptionAttributesRefInformationRefValues(Obj
 
 class NessusScanPluginOutputInfoDescriptionAttributesRefInformationRef(Object):
     def __init__(self, name: str, values: NessusScanPluginOutputInfoDescriptionAttributesRefInformationRefValues,
-                 url: str) -> None:
+                 url: Optional[str]) -> None:
         self.name = name
         self.values = values
         self.url = url
@@ -685,7 +685,7 @@ class NessusScanPluginOutputInfoDescriptionAttributesRefInformationRef(Object):
             -> 'NessusScanPluginOutputInfoDescriptionAttributesRefInformationRef':
         name = str(json_dict['name'])  # TODO can be tight by enum?
         values = NessusScanPluginOutputInfoDescriptionAttributesRefInformationRefValues.from_json(json_dict['values'])
-        url = str(json_dict['url'])
+        url = allow_to_exist(json_dict, 'url', str)
 
         return NessusScanPluginOutputInfoDescriptionAttributesRefInformationRef(name, values, url)
 
