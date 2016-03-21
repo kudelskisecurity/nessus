@@ -5,4 +5,4 @@ services:
 
 test:
   script:
-    - ./test.sh
+    - python -m unittest
