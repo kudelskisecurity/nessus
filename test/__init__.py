@@ -12,10 +12,11 @@ class TestBase(TestCase):
 
 
     def setUp(self):
-        url = environ['NESSUS_URL']
+        ip = environ['NESSUS_IP']
+        port = environ['NESSUS_PORT']
         api_access_key = environ['NESSUS_ACCESS_KEY']
         api_secret_key = environ['NESSUS_SECRET_KEY']
-        self.nessus = LibNessus(url=url, api_access_key=api_access_key, api_secret_key=api_secret_key)
+        self.nessus = LibNessus(host=ip, port=port, api_access_key=api_access_key, api_secret_key=api_secret_key)
 
         # we have it as list to always take the same single target
         self.targets = environ['NESSUS_TARGETS'].split('|')

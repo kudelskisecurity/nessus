@@ -1,3 +1,4 @@
+import logging
 import re
 
 import requests
@@ -12,18 +13,22 @@ class LibNessusBase:
     entry point for the nessus library, welcome!
     """
 
-    def __init__(self, url: str, api_access_key: str, api_secret_key: str) -> None:
+    def __init__(self, host: str, port: int, api_access_key: str, api_secret_key: str) -> None:
         """
         create a nessus session with the given credentials
-        :param url: url (so with 'https' and stuff) to access nessus
+        :param host: host to connect to which has nessus
+        :param port: port on the host to connect
         :param api_access_key: access key to the API
         :param api_secret_key: secret key to the API
         """
-        self.__url = url
+        self.__host = host
+        self.__port = port
         self.__api_access_key = api_access_key
         self.__api_secret_key = api_secret_key
 
         self.__get_session_cache = None  # type: requests.Session
+
+        logging.captureWarnings(True)
 
     def __get_session(self) -> requests.Session:
         """
@@ -53,7 +58,7 @@ class LibNessusBase:
         assert not path.startswith('/')
 
         session = self.__get_session()
-        url = '{}/{}'.format(self.__url, path)
+        url = 'https://{}:{}/{}'.format(self.__host, self.__port, path)
 
         ans = session.request(method=method, url=url, verify=False, **kwargs)
         self.__check_error(ans)

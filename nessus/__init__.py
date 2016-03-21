@@ -16,9 +16,10 @@ class LibNessus:
     """
     # pylint: disable=too-few-public-methods
 
-    def __init__(self, url: str, api_access_key: str, api_secret_key: str) -> None:
+    def __init__(self, host: str, port: int, api_access_key: str, api_secret_key: str) -> None:
         args = {
-            'url': url,
+            'host': host,
+            'port': port,
             'api_access_key': api_access_key,
             'api_secret_key': api_secret_key,
         }
