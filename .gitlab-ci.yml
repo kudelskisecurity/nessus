@@ -1,5 +1,7 @@
+image: nessus-test
+
 services:
-  - nessus
+        - nessus-ssh
 
 test:
   script:
