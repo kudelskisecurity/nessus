@@ -5,7 +5,7 @@ sub modules for everything about the scans
 from enum import Enum
 from uuid import uuid4
 
-from typing import Iterable, Mapping, Union, Optional
+from typing import Iterable, Mapping, Union, Optional, MutableMapping
 
 from nessus.base import LibNessusBase
 from nessus.editor import NessusTemplate
@@ -761,6 +761,58 @@ class NessusScanPluginOutputInfoDescription(Object):
         return NessusScanPluginOutputInfoDescription(severity, pluginname, pluginattributes, pluginfamily, pluginid)
 
 
+class Transport(Enum):
+    icmp = 'icmp'
+    tcp = 'tcp'
+    udp = 'udp'
+
+
+class Protocol(Enum):
+    cifs = 'cifs'
+    dns = 'dns'
+    irc = 'irc'
+    ftp = 'ftp'
+    mysql = 'mysql'
+    netbios_ns = 'netbios-ns'
+    postgresql = 'postgresql'
+    rlogin = 'rlogin'
+    rmi_registry = 'rmi_registry'
+    rpc_portmapper = 'rpc-portmapper'
+    rpc_nfs = 'rpc-nfs'
+    rpc_nlockmgr = 'rpc-nlockmgr'
+    rpc_status = 'rpc-status'
+    rpc_mountd = 'rpc-mountd'
+    rsh = 'rsh'
+    smb = 'smb'
+    smtp = 'smtp'
+    ssh = 'ssh'
+    telnet = 'telnet'
+    tftpd = 'tftpd'
+    vnc = 'vnc'
+    wild_shell = 'wild_shell'
+    www = 'www'
+    x11 = 'x11'
+
+
+class NessusScanPluginOutputPort(Object):
+    def __init__(self, number: int, transport: Transport, protocol: Optional[Protocol], hosts: Iterable[str]) -> None:
+        self.number = number
+        self.transport = transport
+        self.protocol = protocol
+        self.hosts = hosts
+
+    @staticmethod
+    def from_json(port_packed: str, json_list: Iterable[MutableMapping[str, Union[int, str, bool]]]) \
+            -> 'NessusScanPluginOutputPort':
+        port_splited = port_packed.split(' / ')
+        number = int(port_splited[0])
+        transport = Transport(port_splited[1])
+        protocol = (port_splited[2] != '' and Protocol(port_splited[2])) or None
+        hosts = {host['hostname'] for host in json_list}
+
+        return NessusScanPluginOutputPort(number=number, transport=transport, protocol=protocol, hosts=hosts)
+
+
 class NessusScanPluginOutput(Object):
     def __init__(self, plugin_output: str, hosts: str, severity: int, ports) -> None:
         self.plugin_output = plugin_output
@@ -773,8 +825,7 @@ class NessusScanPluginOutput(Object):
         plugin_output = str(json_dict['plugin_output'])
         hosts = str(json_dict['hosts'])
         severity = int(json_dict['severity'])
-        ports = (json_dict['ports'])
-        print(ports)
+        ports = [NessusScanPluginOutputPort.from_json(k, v) for k, v in json_dict['ports'].items()]
 
         return NessusScanPluginOutput(plugin_output, hosts, severity, ports)
 
@@ -791,14 +842,19 @@ class NessusScanPluginOutputInfo(Object):
 
 
 class NessusScanPluginOutputDetails(Object):
+    """
+    lies:
+     - `outputs` is typo'ed as `output`
+    """
+
     def __init__(self, info: NessusScanPluginOutputInfo, output: Iterable[NessusScanPluginOutput]) -> None:
         self.info = info
         self.output = output
 
     @staticmethod
-    def from_json(json_dict: Mapping[str, Union[int, str, bool]]) -> 'NessusScanPluginOutputDetails':
-        info = NessusScanPluginOutputInfo.from_json(json_dict['info'])
-        output = {NessusScanPluginOutput.from_json(output) for output in lying_exist(json_dict, 'output', set, {})}
+    def from_json(json_dict: MutableMapping[str, Union[int, str, bool]]) -> 'NessusScanPluginOutputDetails':
+        info = NessusScanPluginOutputInfo.from_json(json_dict.pop('info'))
+        output = {NessusScanPluginOutput.from_json(output) for output in json_dict.pop('outputs')}
 
         return NessusScanPluginOutputDetails(info, output)
 

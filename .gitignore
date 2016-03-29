@@ -1,5 +1,6 @@
 # IDE
 .idea
+.todo
 
 # vim
 *.sw?
