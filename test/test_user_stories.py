@@ -32,18 +32,6 @@ class TestUserStories(TestBase):
         scanned = next(s for s in scans if s.uuid == scan_uuid)
         self.nessus.scans.details(scanned)
 
-    def test_scan_with_import_glibc(self):
-        self.scan_with_import('glibc')
-
-    def test_scan_with_import_low(self):
-        self.scan_with_import('low')
-
-    def test_scan_with_import_medium(self):
-        self.scan_with_import('medium')
-
-    def test_scan_with_import_high(self):
-        self.scan_with_import('high')
-
     def scan_with_import(self, name: str):
         local_file = NessusFile(os.path.join(self.data_dir, name))
         remote_file = self.nessus.file.upload(local_file)
