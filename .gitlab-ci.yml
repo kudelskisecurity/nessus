@@ -1,8 +1,0 @@
-image: nessus-test
-
-services:
-  - nessus-ssh
-
-test:
-  script:
-    - python -m unittest -v

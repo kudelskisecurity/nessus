@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  nessus-test:
+    build: .
+    links:
+    - nessus
+  tharvik:
+    image: tharvik/ci:nessus
