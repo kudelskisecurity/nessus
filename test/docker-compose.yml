@@ -1,9 +1,6 @@
-version: '2'
-
-services:
-  nessus-test:
-    build: .
-    depends_on:
-      - nessus
-  nessus:
-    image: tharvik/ci:nessus
+nessus-test:
+  build: .
+  depends_on:
+    - nessus
+nessus:
+  image: tharvik/ci:nessus
