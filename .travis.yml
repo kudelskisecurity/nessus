@@ -13,8 +13,8 @@ before_install:
   - sudo mv docker-compose /usr/local/bin
 
   - docker login --username "${DOCKER_USERNAME}" --email "${DOCKER_EMAIL}" --password "${DOCKER_PASSWORD}"
+  - cp -r . test/nessus
   - cd test && docker-compose build
 
 script:
-  - cp -r . test/nessus
   - docker-compose run nessus-test sh -c 'cd /nessus; python -m unittest -v'
