@@ -1,6 +1,6 @@
 nessus-test:
   build: .
-  depends_on:
+  links:
     - nessus
 nessus:
   image: tharvik/ci:nessus
