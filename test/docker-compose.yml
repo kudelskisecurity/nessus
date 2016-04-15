@@ -3,7 +3,7 @@ version: '2'
 services:
   nessus-test:
     build: .
-    links:
-    - nessus
-  tharvik:
+    depends_on:
+      - nessus
+  nessus:
     image: tharvik/ci:nessus
