@@ -1,5 +1,3 @@
-from uuid import uuid4
-
 from nessus.base import LibNessusBase
 
 
@@ -21,11 +19,4 @@ class LibNessusFile(LibNessusBase):
         :param nessus_file: file to upload
         :return: the filename on nessus
         """
-        with open(nessus_file.path, 'rb') as io:
-            filename = str(uuid4())
-            files = {'Filedata': (filename, io)}
-
-            ans = self._post(path='file/upload', files=files)
-
-            filename = ans.json()['fileuploaded']
-            return NessusRemoteFile(filename)
+        return NessusRemoteFile('empty')
