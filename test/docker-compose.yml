@@ -4,7 +4,6 @@ nessus-test:
     - nessus
     - shellshock
     - heartbleed
-    - ubuntu
   environment:
     - NESSUS_IP=nessus
     - NESSUS_PORT=8834
