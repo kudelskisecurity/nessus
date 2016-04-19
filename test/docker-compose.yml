@@ -2,5 +2,14 @@ nessus-test:
   build: .
   links:
     - nessus
+    - shellshock
+    - heartbleed
+    - ubuntu
 nessus:
   image: tharvik/ci:nessus
+shellshock:
+  image: hmlio/vaas-cve-2014-6271
+heartbleed:
+  image: hmlio/vaas-cve-2014-0160
+ubuntu:
+  image: yossitwistlock/extremly-vulnerable-ubuntu
