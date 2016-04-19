@@ -1,3 +1,10 @@
+environment:
+  - NESSUS_IP='nessus'
+  - NESSUS_PORT=8834
+  - NESSUS_ACCESS_KEY
+  - NESSUS_SECRET_KEY
+  - NESSUS_TARGETS='shellshock|heartbleed|ubuntu'
+
 nessus-test:
   build: .
   links:
