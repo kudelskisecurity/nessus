@@ -18,4 +18,4 @@ before_install:
   - cd test && docker-compose build
 
 script:
-  - docker-compose run nessus-test sh -c 'cd /nessus && ls && ls test && python -m unittest -v'
+  - docker-compose run nessus-test sh -c 'cd /nessus && python3 -m unittest -v'
