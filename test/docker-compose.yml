@@ -1,18 +1,24 @@
-nessus-test:
-  build: .
-  links:
-    - nessus
-    - shellshock
-    - heartbleed
-  environment:
-    - NESSUS_IP=nessus
-    - NESSUS_PORT=8834
-    - NESSUS_ACCESS_KEY
-    - NESSUS_SECRET_KEY
-    - NESSUS_TARGETS=shellshock|heartbleed
-nessus:
-  image: tharvik/ci:nessus
-shellshock:
-  image: hmlio/vaas-cve-2014-6271
-heartbleed:
-  image: hmlio/vaas-cve-2014-0160
+version: '2'
+
+services:
+  nessus-test:
+    build: .
+    links:
+      - nessus
+      - shellshock
+      - heartbleed
+    environment:
+      - NESSUS_IP=nessus
+      - NESSUS_PORT=8834
+      - NESSUS_ACCESS_KEY
+      - NESSUS_SECRET_KEY
+      - NESSUS_TARGETS=shellshock|heartbleed
+  nessus:
+    build:
+      context: docker/nessus
+      args:
+        - NESSUS_LICENSE
+  shellshock:
+    image: hmlio/vaas-cve-2014-6271
+  heartbleed:
+    image: hmlio/vaas-cve-2014-0160

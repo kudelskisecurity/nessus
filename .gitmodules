@@ -1,0 +1,3 @@
+[submodule "test/docker"]
+	path = test/docker
+	url = https://github.com/tharvik/docker.git
