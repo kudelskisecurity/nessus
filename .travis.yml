@@ -32,4 +32,6 @@ before_install:
   - . /tmp/keys
 
 script:
+  - cd test
   - docker-compose run nessus-test sh -c 'cd /nessus && python3 -m unittest -v'
+  - cd ..
