@@ -26,6 +26,7 @@ before_install:
   - docker login --username "${DOCKER_USERNAME}" --email "${DOCKER_EMAIL}" --password "${DOCKER_PASSWORD}"
   - cp -r . /tmp/nessus
   - mv /tmp/nessus test
+  - echo "${NESSUS_LICENSE}"
   - cd test && docker-compose build
 
 script:
