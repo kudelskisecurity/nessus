@@ -26,8 +26,9 @@ before_install:
   - docker login --username "${DOCKER_USERNAME}" --email "${DOCKER_EMAIL}" --password "${DOCKER_PASSWORD}"
   - cp -r . /tmp/nessus
   - mv /tmp/nessus test
-  - echo "${NESSUS_LICENSE}"
-  - cd test && docker-compose build
+  - cd test && docker-compose build | tee /tmp/compose_log
+  - awk '/^NESSUS_[A-Z]+_KEY=[a-z0-9]+$/ {print "export " $0}' /tmp/compose_log > /tmp/keys
+  - . /tmp/keys
 
 script:
   - docker-compose run nessus-test sh -c 'cd /nessus && python3 -m unittest -v'
