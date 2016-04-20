@@ -14,7 +14,8 @@ before_install:
   - echo 'deb https://apt.dockerproject.org/repo ubuntu-trusty main' > docker.list
   - sudo mv docker.list /etc/apt/sources.list.d/
   - sudo apt-get update
-  - sudo apt-get install -y linux-image-extra-$(uname -r) apparmor docker-engine
+  - sudo apt-get install -y linux-image-extra-$(uname -r) apparmor
+  - yes '' | sudo apt-get install -y docker-engine
   - sudo service docker restart
 
   - sudo rm /usr/local/bin/docker-compose
