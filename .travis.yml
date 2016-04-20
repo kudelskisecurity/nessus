@@ -27,8 +27,7 @@ before_install:
   - cp -r . /tmp/nessus
   - mv /tmp/nessus test
   - cd test && docker-compose build | tee /tmp/compose_log
-  - cat /tmp/compose_log
-  - awk "/^NESSUS_[A-Z]+_KEY='[a-z0-9]+'$/ {print \"export \" \$0}" /tmp/compose_log > /tmp/keys
+  - ./setup.sh
   - cat /tmp/keys
   - . /tmp/keys
 
