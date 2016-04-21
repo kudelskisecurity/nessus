@@ -26,10 +26,7 @@ before_install:
   - docker login --username "${DOCKER_USERNAME}" --email "${DOCKER_EMAIL}" --password "${DOCKER_PASSWORD}"
   - cp -r . /tmp/nessus
   - mv /tmp/nessus test
-  - cd test && docker-compose build | tee /tmp/compose_log && cd ..
-  - ./setup.sh
-  - cat /tmp/keys
-  - . /tmp/keys
+  - cd test && docker-compose build && cd ..
 
 script:
   - cd test
