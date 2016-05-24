@@ -711,7 +711,7 @@ class NessusScanPluginOutputInfoDescriptionAttributes(Object):
 
     def __init__(self, risk_information: NessusScanPluginOutputInfoDescriptionAttributesRiskInformation,
                  plugin_name: str, plugin_information: NessusScanPluginOutputInfoDescriptionAttributesPluginInformation,
-                 solution: str, fname: str, synopsis: str, description: str,
+                 solution: Optional[str], fname: str, synopsis: str, description: str,
                  ref_information: Optional[NessusScanPluginOutputInfoDescriptionAttributesRefInformation]) -> None:
         self.risk_information = risk_information
         self.plugin_name = plugin_name
@@ -729,7 +729,10 @@ class NessusScanPluginOutputInfoDescriptionAttributes(Object):
         plugin_name = str(json_dict['plugin_name'])
         plugin_information = \
             NessusScanPluginOutputInfoDescriptionAttributesPluginInformation.from_json(json_dict['plugin_information'])
-        solution = str(json_dict['solution'])
+        if json_dict['solution'] is None:
+            solution = None
+        else:
+            solution = json_dict['solution']
         fname = str(json_dict['fname'])
         synopsis = str(json_dict['synopsis'])
         description = str(json_dict['description'])
