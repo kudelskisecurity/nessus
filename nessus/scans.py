@@ -3,7 +3,6 @@ sub modules for everything about the scans
 """
 
 from enum import Enum
-from pprint import pprint
 from uuid import uuid4
 
 from typing import Iterable, Mapping, Union, Optional, MutableMapping
@@ -830,7 +829,6 @@ class NessusScanPluginOutput(Object):
         plugin_output = str(json_dict['plugin_output'])
         hosts = str(json_dict['hosts'])
         severity = int(json_dict['severity'])
-        pprint(json_dict['ports'])
         ports = [NessusScanPluginOutputPort.from_json(k, v) for k, v in json_dict['ports'].items()]
 
         return NessusScanPluginOutput(plugin_output, hosts, severity, ports)
