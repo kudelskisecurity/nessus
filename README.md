@@ -61,3 +61,8 @@ If you need any features, more API calls, just drop a line on the bug tracker.
 
 If any of test are failing, or you found a bug, provide a test case and write me
 something (still on the bug tracker).
+
+# license
+Copyright (c) 2016 Nagravision SA
+
+Under CC0 license <http://creativecommons.org/publicdomain/zero/1.0/>
